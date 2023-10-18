@@ -3,9 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -13,21 +10,32 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import { BsGithub } from "react-icons/bs";
+import { SiNeo4J } from "react-icons/si";
 
 function Copyright(props) {
+  const github = () => {
+    window.open("https://github.com/avizca00/sibi", "_blank");
+  };
+
+  const neo = () => {
+    window.open("https://neo4j.com", "_blank");
+  };
+
   return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
+    <Typography variant="h5" color="text.secondary" align="center" {...props}>
+      Memoria del proyecto en{" "}
+      <BsGithub id="logoGithub" onClick={github} cursor={"pointer"} />
+      <br />
+      Powered by <SiNeo4J id="logoNeo4j" onClick={neo} cursor={"pointer"} />
+      <br />
+      <a
+        href={"https://ingenierias.unileon.es/"}
+        target={"_blank"}
+        rel="noopener noreferrer external"
+      >
+        Escuela de Ingenierías Universidad de León
+      </a>
     </Typography>
   );
 }
@@ -36,13 +44,26 @@ const defaultTheme = createTheme();
 export default function Login() {
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const iniciaSesion = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    let usuario = data.get("usuario");
+    let contra = data.get("contrasenia");
+  };
+
+  const registraUsuario = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+
+    let usuario = data.get("usuario-registro");
+    let contra = data.get("contrasenia-registro");
+    let contra_conf = data.get("contrasenia-registro-comprobacion");
+
+    if (contra !== contra_conf) {
+      alert("Las contraseñas son distintas");
+    } else {
+    }
   };
 
   return (
@@ -65,7 +86,7 @@ export default function Login() {
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
-        />
+        ></Grid>
         <Grid
           item
           xs={12}
@@ -75,13 +96,7 @@ export default function Login() {
           elevation={6}
           square
           sx={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80)",
-            backgroundRepeat: "no-repeat",
-            backgroundColor: (t) =>
-              t.palette.mode === "light"
-                ? t.palette.grey[50]
-                : t.palette.grey[900],
+            backgroundColor: "#FF862C",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -95,63 +110,101 @@ export default function Login() {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
+            <Typography component="h1" variant="h4">
+              ¡INICIA SESION!
             </Typography>
             <Box
               component="form"
               noValidate
-              onSubmit={handleSubmit}
+              onSubmit={iniciaSesion}
               sx={{ mt: 1 }}
             >
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
+                id="usuario"
+                placeholder="Usuario"
+                name="usuario"
+                autoComplete="usuario"
                 autoFocus
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                name="password"
-                label="Password"
+                name="contrasenia"
+                placeholder="Contraseña"
                 type="password"
-                id="password"
-                autoComplete="current-password"
-              />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
+                id="contrasenia"
+                autoComplete="contraseña-actual"
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, mb: 2, bgcolor: "#F3A062" }}
               >
-                Sign In
+                INICIA SESION
               </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
-              </Grid>
-              <Copyright sx={{ mt: 5 }} />
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              my: 8,
+              mx: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography component="h1" variant="h4">
+              ¡REGISTRATE YA!
+            </Typography>
+            <Box
+              component="form"
+              noValidate
+              onSubmit={registraUsuario}
+            >
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="usuario-registro"
+                label="Usuario"
+                name="usuario-registro"
+                autoComplete="usuario"
+                autoFocus
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="contrasenia-registro"
+                label="Contraseña"
+                type="password"
+                id="contrasenia-registro"
+                autoComplete="contraseña"
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="contrasenia-registro-comprobacion"
+                label="Confirmar contraseña"
+                type="password"
+                id="contrasenia-registro-comprobacion"
+                autoComplete="contraseña"
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2, bgcolor: "#F3A062" }}
+              >
+                REGISTRATE
+              </Button>
+              <Copyright sx={{ mt: 2 }} />
             </Box>
           </Box>
         </Grid>

@@ -1,6 +1,6 @@
-import logo from "./logo.svg";
 import "./App.css";
 import Login from "./pages/login.js";
+import Recomendador from "./pages/recomendador.js";
 
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -19,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
+          {/*<Route path="/:usuario/recomendador" element={<Recomendador />} />*/}
         </Routes>
       </Router>
     </LocalizationProvider>
