@@ -1,23 +1,28 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { BsGithub } from "react-icons/bs";
 import { SiNeo4J } from "react-icons/si";
+import axios from "axios";
 
 function Copyright(props) {
+  /**
+   * Función que abre la página de github del proyecto
+   */
   const github = () => {
     window.open("https://github.com/avizca00/sibi", "_blank");
   };
 
+  /**
+   * Función que abre la página de neo4j
+   */
   const neo = () => {
     window.open("https://neo4j.com", "_blank");
   };
@@ -50,6 +55,21 @@ export default function Login() {
 
     let usuario = data.get("usuario");
     let contra = data.get("contrasenia");
+
+    let body = { usuario: usuario, contrasenia: contra };
+
+    axios
+      .post("http://localhost:3000/inicioSesion", body)
+      .then((res) => {
+        if (res.status === 200) {
+          navigate("/" + usuario + "/recomendador", { replace: true });
+        } else {
+          alert("Usuario o contraseña incorrectos");
+        }
+      })
+      .catch((err) => {
+        alert("No se ha podido iniciar sesion con dichas credenciales");
+      });
   };
 
   const registraUsuario = (event) => {
@@ -63,6 +83,20 @@ export default function Login() {
     if (contra !== contra_conf) {
       alert("Las contraseñas son distintas");
     } else {
+      let body = { usuario: usuario, contrasenia: contra };
+
+      axios
+        .post("http://localhost:3000/registro", body)
+        .then((res) => {
+          if (res.status === 200) {
+            alert("Usuario registrado correctamente.\nRediriendo al Recomendador...");
+          } else {
+            alert("El usuario a registrar ya existe");
+          }
+        })
+        .catch((err) => {
+          alert("No se ha podido registrar el usuario");
+        });
     }
   };
 
@@ -161,11 +195,7 @@ export default function Login() {
             <Typography component="h1" variant="h4">
               ¡REGISTRATE YA!
             </Typography>
-            <Box
-              component="form"
-              noValidate
-              onSubmit={registraUsuario}
-            >
+            <Box component="form" noValidate onSubmit={registraUsuario}>
               <TextField
                 margin="normal"
                 required
