@@ -59,7 +59,7 @@ export default function Login() {
     let body = { usuario: usuario, contrasenia: contra };
 
     axios
-      .post("http://localhost:3000/inicioSesion", body)
+      .post("http://localhost:5000/inicioSesion", body)
       .then((res) => {
         if (res.status === 200) {
           navigate("/" + usuario + "/recomendador", { replace: true });
@@ -68,7 +68,7 @@ export default function Login() {
         }
       })
       .catch((err) => {
-        alert("No se ha podido iniciar sesion con dichas credenciales");
+        alert(err);
       });
   };
 

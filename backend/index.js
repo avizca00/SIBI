@@ -19,15 +19,9 @@ const cors = require("cors");
 const neo4j = require("./conexionDB");
 
 /**
- * Creamos la conexión a la base de datos
+ * Configuramos el puerto del servidor
  */
-neo4j()
-  .then(() => {
-    app.listen(3000, function () {
-      console.log("Base de datos conectada y servidor arrancado .");
-    });
-  })
-  .catch((err) => console.log("Algo ha ido mal ..."));
+app.set("port", 5000);
 
 /**
  * Configuramos el servidor para que entienda las peticiones
@@ -39,9 +33,10 @@ app.use(cors());
  * Endpoint para el inicio de usuarios
  */
 app.post("/inicioSesion", (req, res) => {
+  console.log(req.body);
   const { usuario, contrasenia } = req.body;
 
-  const query = `MATCH (u:Usuario {usuario: ${usuario}, contrasenia: ${contrasenia}}) RETURN u`;
+  const query = `MATCH (u:Usuario {nombre: ${usuario}, contrasenia: ${contrasenia}}) RETURN u`;
 
   neo4j.run(query).then((result) => {
     if (result.records.length === 0) {
@@ -69,4 +64,8 @@ app.post("/registro", (req, res) => {
     }
   });
   return res;
+});
+
+app.listen(app.get("port"), () => {
+  console.log("Servidor abierto en puerto", app.get("port"));
 });
