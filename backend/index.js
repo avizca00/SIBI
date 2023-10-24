@@ -33,18 +33,21 @@ app.use(cors());
  * Endpoint para el inicio de usuarios
  */
 app.post("/inicioSesion", (req, res) => {
-  console.log(req.body);
   const { usuario, contrasenia } = req.body;
 
-  const query = `MATCH (u:Usuario {nombre: ${usuario}, contrasenia: ${contrasenia}}) RETURN u`;
+  const query = `MATCH (u:Usuario {nombre: $usuario, contrasenia: $contrasenia}) RETURN u`;
 
-  neo4j.run(query).then((result) => {
-    if (result.records.length === 0) {
-      res.status(404).send({ message: "Usuario no encontrado" });
-    } else {
-      res.status(200).send({ message: "Usuario encontrado" });
-    }
-  });
+  neo4j
+    .run(query, { usuario: usuario, contrasenia: contrasenia })
+    .then((result) => {
+      if (result.records.length === 0) {
+        console.log("Usuario no encontrado");
+        res.status(404).send({ message: "Usuario no encontrado" });
+      } else {
+        console.log("Usuario encontrado");
+        res.status(200).send({ message: "Usuario encontrado" });
+      }
+    });
   return res;
 });
 
@@ -54,15 +57,17 @@ app.post("/inicioSesion", (req, res) => {
 app.post("/registro", (req, res) => {
   const { usuario, contrasenia } = req.body;
 
-  const query = `MERGE (u:Usuario {usuario: ${usuario}, contrasenia: ${contrasenia}}) RETURN u`;
+  const query = `MERGE (u:Usuario {nombre: $usuario, contrasenia: $contrasenia}) RETURN u`;
 
-  neo4j.run(query).then((result) => {
-    if (result.records.length === 0) {
-      res.status(404).send({ message: "Usuario ya registrado" });
-    } else {
-      res.status(200).send({ message: "Usuario encontrado" });
-    }
-  });
+  neo4j
+    .run(query, { usuario: usuario, contrasenia: contrasenia })
+    .then((result) => {
+      if (result.records.length === 0) {
+        res.status(404).send({ message: "Usuario ya registrado" });
+      } else {
+        res.status(200).send({ message: "Usuario registrado" });
+      }
+    });
   return res;
 });
 

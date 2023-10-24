@@ -62,13 +62,12 @@ export default function Login() {
       .post("http://localhost:5000/inicioSesion", body)
       .then((res) => {
         if (res.status === 200) {
+          alert("Usuario encontrado.\nRediriendo al Recomendador...");
           navigate("/" + usuario + "/recomendador", { replace: true });
-        } else {
-          alert("Usuario o contraseña incorrectos");
         }
       })
       .catch((err) => {
-        alert(err);
+        alert("Usuario o contraseña incorrectos");
       });
   };
 
@@ -86,10 +85,12 @@ export default function Login() {
       let body = { usuario: usuario, contrasenia: contra };
 
       axios
-        .post("http://localhost:3000/registro", body)
+        .post("http://localhost:5000/registro", body)
         .then((res) => {
           if (res.status === 200) {
-            alert("Usuario registrado correctamente.\nRediriendo al Recomendador...");
+            alert(
+              "Usuario registrado correctamente"
+            );
           } else {
             alert("El usuario a registrar ya existe");
           }
