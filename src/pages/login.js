@@ -88,9 +88,7 @@ export default function Login() {
         .post("http://localhost:5000/registro", body)
         .then((res) => {
           if (res.status === 200) {
-            alert(
-              "Usuario registrado correctamente"
-            );
+            alert("Usuario registrado correctamente");
           } else {
             alert("El usuario a registrar ya existe");
           }
