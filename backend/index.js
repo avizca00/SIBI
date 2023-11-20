@@ -154,6 +154,27 @@ app.get("/jugadoresVisitados/:usuario", (req, res) => {
     });
 });
 
+app.get("/usuario/:nombre", (req, res) => {
+  const { nombre } = req.params;
+
+  const query = `
+    MATCH (u:Usuario {nombre: $nombre})
+    RETURN u
+  `;
+
+  neo4j
+    .run(query, { nombre: nombre })
+    .then((result) => {
+      const usuario = result.records.map((record) => record.get("u").properties);
+      res.status(200).send(usuario);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send({ message: "Internal server error" });
+    });
+});
+
+
 app.post("/visitarPerfil/:usuario", (req, res) => {
   const { jugador } = req.body;
   const { usuario } = req.params;
@@ -214,6 +235,22 @@ app.post("/favoritos/:usuario", (req, res) => {
       res.status(500).send({ message: "Internal server error" });
     });
 });
+
+app.get("/jugadores", (req, res) => {
+  const query = "MATCH (j:Jugador) RETURN j";
+
+  neo4j
+    .run(query)
+    .then((result) => {
+      const jugadores = result.records.map((record) => record.get("j").properties);
+      res.status(200).send(jugadores);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send({ message: "Internal server error" });
+    });
+});
+
 
 app.listen(app.get("port"), () => {
   console.log("Servidor abierto en puerto", app.get("port"));

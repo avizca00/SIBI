@@ -19,7 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
-          {/*<Route path="/:usuario/recomendador" element={<Recomendador />} />*/}
+          {<Route path="/:usuario/recomendador" element={<Recomendador />} />}
         </Routes>
       </Router>
     </LocalizationProvider>
