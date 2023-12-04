@@ -16,7 +16,7 @@ const cors = require("cors");
 /**
  * Importamos la conexión a la base de datos
  */
-const neo4j = require("./conexionDB");
+const driver = require("./conexionDB");
 
 /**
  * Configuramos el puerto del servidor
@@ -29,15 +29,20 @@ app.set("port", 5000);
 app.use(express.json());
 app.use(cors());
 
+app.use(express.json({ limit: "5000mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5000mb" }));
+
 /**
  * Endpoint para el inicio de usuarios
  */
-app.post("/inicioSesion", (req, res) => {
+app.post("/inicioSesion", async (req, res) => {
   const { usuario, contrasenia } = req.body;
 
   const query = `MATCH (u:Usuario {nombre: $usuario, contrasenia: $contrasenia}) RETURN u`;
 
-  neo4j
+  let sesion = driver.session();
+
+  await sesion
     .run(query, { usuario: usuario, contrasenia: contrasenia })
     .then((result) => {
       if (result.records.length === 0) {
@@ -51,7 +56,8 @@ app.post("/inicioSesion", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(async () => await sesion.close());
 });
 
 /**
@@ -62,7 +68,9 @@ app.post("/registro", (req, res) => {
 
   const query = `MERGE (u:Usuario {nombre: $usuario, contrasenia: $contrasenia}) RETURN u`;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, { usuario: usuario, contrasenia: contrasenia })
     .then((result) => {
       if (result.records.length === 0) {
@@ -74,18 +82,21 @@ app.post("/registro", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(async () => await sesion.close());
 });
 
 /**
  * Endpoint para obtener todos los jugadores con un determinado número de puntos, rebotes y asistencias
  */
-app.get("/jugadores", (req, res) => {
+app.get("/jugadoresCar", (req, res) => {
   const { puntos, rebotes, asistencias } = req.body;
 
   const query = `MATCH (j:Jugador) WHERE j.puntos = $puntos AND j.rebotes = $rebotes AND j.asistencias = $asistencias RETURN j`;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, {
       puntos: parseInt(puntos),
       rebotes: parseInt(rebotes),
@@ -100,7 +111,8 @@ app.get("/jugadores", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(() => sesion.close());
 });
 
 app.get("/jugadoresSimilares/:nombre", (req, res) => {
@@ -114,10 +126,11 @@ app.get("/jugadoresSimilares/:nombre", (req, res) => {
       SQRT(POWER(j1.puntos - j2.puntos, 2) + POWER(j1.rebotes - j2.rebotes, 2) + POWER(j1.asistencias - j2.asistencias, 2)) AS distancia
     RETURN j2, distancia
     ORDER BY distancia ASC
-    LIMIT 10
   `;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, { nombre: nombre })
     .then((result) => {
       const jugadores = result.records.map(
@@ -128,8 +141,10 @@ app.get("/jugadoresSimilares/:nombre", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(() => sesion.close());
 });
+
 app.get("/jugadoresVisitados/:usuario", (req, res) => {
   const { usuario } = req.params;
 
@@ -138,7 +153,9 @@ app.get("/jugadoresVisitados/:usuario", (req, res) => {
     RETURN j order by v.vecesVisitado DESC    
   `;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, { usuario: usuario })
     .then((result) => {
       const jugadores = result.records.map((record) => {
@@ -151,29 +168,36 @@ app.get("/jugadoresVisitados/:usuario", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(() => sesion.close());
 });
 
-app.get("/usuario/:nombre", (req, res) => {
+app.get("/usuario/:nombre", async (req, res) => {
   const { nombre } = req.params;
+  console.log({ nombre });
 
   const query = `
     MATCH (u:Usuario {nombre: $nombre})
     RETURN u
   `;
 
-  neo4j
+  let sesion = driver.session();
+
+  await sesion
     .run(query, { nombre: nombre })
     .then((result) => {
-      const usuario = result.records.map((record) => record.get("u").properties);
+      const usuario = result.records.map(
+        (record) => record.get("u").properties
+      );
       res.status(200).send(usuario);
     })
     .catch((error) => {
       console.error(error);
+      console.log(nombre);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(async () => await sesion.close());
 });
-
 
 app.post("/visitarPerfil/:usuario", (req, res) => {
   const { jugador } = req.body;
@@ -186,7 +210,9 @@ app.post("/visitarPerfil/:usuario", (req, res) => {
     ON MATCH SET v.numeroVisitas = v.numeroVisitas + 1
   `;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, { usuario: usuario, jugador: jugador })
     .then(() => {
       res.status(200).send({ message: "Perfil visitado correctamente" });
@@ -194,7 +220,8 @@ app.post("/visitarPerfil/:usuario", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(() => sesion.close());
 });
 
 app.get("/favoritos/:usuario", (req, res) => {
@@ -202,7 +229,9 @@ app.get("/favoritos/:usuario", (req, res) => {
 
   const query = `MATCH (u:Usuario {nombre: $usuario})-[:ES_FAVORITO]->(j:Jugador) RETURN j`;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, { usuario: usuario })
     .then((result) => {
       const jugadores = result.records.map(
@@ -213,7 +242,8 @@ app.get("/favoritos/:usuario", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(() => sesion.close());
 });
 
 app.post("/favoritos/:usuario", (req, res) => {
@@ -225,7 +255,9 @@ app.post("/favoritos/:usuario", (req, res) => {
     MERGE (u)-[:ES_FAVORITO]->(j)
   `;
 
-  neo4j
+  let sesion = driver.session();
+
+  sesion
     .run(query, { usuario: usuario, jugador: jugador })
     .then(() => {
       res.status(200).send({ message: "Jugador añadido a favoritos" });
@@ -233,24 +265,47 @@ app.post("/favoritos/:usuario", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(() => sesion.close());
 });
 
-app.get("/jugadores", (req, res) => {
+app.get("/jugadores", async (req, res) => {
   const query = "MATCH (j:Jugador) RETURN j";
 
-  neo4j
+  let sesion = driver.session();
+
+  await sesion
     .run(query)
     .then((result) => {
-      const jugadores = result.records.map((record) => record.get("j").properties);
-      res.status(200).send(jugadores);
+      const jugadores = result.records.map(
+        (record) => record.get("j").properties
+      );
+      console.log("HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+      const jugadoresTabla = jugadores.map((jugador, i) => ({
+        id: i,
+        nombre: jugador.nombre,
+        puntos: jugador.puntosPartido,
+        edad: jugador.edad,
+        equipo: jugador.equipo,
+        posicion: jugador.posicion,
+        partidos: jugador.partidosJugados,
+        asistencias: jugador.asistenciasPartido,
+        rebotes: jugador.rebotesTotalesPartido,
+        tapones: jugador.taponesPartido,
+        robos: jugador.robosPartido,
+        faltas: jugador.faltasPersonalesPartido,
+        triples: jugador.triplesAcertadosPartido,
+        tirosLibresPartido: jugador.tirosLibresAcertadosPartido,
+      }));
+
+      res.status(200).send({ jugadores, jugadoresTabla });
     })
     .catch((error) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
-    });
+    })
+    .then(async () => await sesion.close());
 });
-
 
 app.listen(app.get("port"), () => {
   console.log("Servidor abierto en puerto", app.get("port"));

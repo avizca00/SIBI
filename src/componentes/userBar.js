@@ -24,13 +24,9 @@ export default function UserBar() {
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-  const [infoUser, setInfoUser] = useState({});
+
   const pages = ["Home", "Perfil"];
   const settings = ["Logout"];
-
-  useEffect(() => {
-    getUser();
-  }, []);
 
   const styles = {
     appBar: {
@@ -71,18 +67,6 @@ export default function UserBar() {
       default:
         break;
     }
-  };
-
-  const getUser = async () => {
-    axios
-      .get(`http://localhost:5000/usuario/${user}`)
-      .then((response) => {
-        setInfoUser(response.data);
-      })
-      .catch((error) => {
-        alert("Error. Usuario no encontrado");
-        navigate("/");
-      });
   };
 
   const handleCloseUserMenu = () => {

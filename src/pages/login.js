@@ -12,7 +12,6 @@ import { BsGithub } from "react-icons/bs";
 import { SiNeo4J } from "react-icons/si";
 import axios from "axios";
 
-
 function Copyright(props) {
   /**
    * Función que abre la página de github del proyecto

@@ -1,13 +1,9 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { TableContainer, Table, Select, MenuItem } from "@mui/material";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
+import { Container, Select, MenuItem } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
@@ -16,7 +12,9 @@ import { useParams } from "react-router-dom";
 import UserBar from "../componentes/userBar";
 import Slider from "@mui/material/Slider";
 import { orange } from "@mui/material/colors";
+import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material";
+import { maxHeight, minHeight } from "@mui/system";
 
 const defaultTheme = createTheme({
   typography: {
@@ -104,7 +102,31 @@ const StyledTextField = styled(TextField)({
   },
 });
 
+const StyledDataGrid = styled(DataGrid)({
+  width: "70%", // Set the width to 100% of the container
+  boxShadow: 2,
+  backgroundColor: "#363A43",
+  border: 2,
+  color: "white",
+  borderColor: "primary.light",
+  maxWidth: "100%",
+  marginLeft: "100px",
+  marginRight: "100px",
+  "& .MuiDataGrid-cell:hover": {
+    color: "primary.main",
+  },
+  "& .MuiDataGrid-columnHeader:hover": {
+    color: "primary.main",
+  },
+  "& .MuiDataGrid-columnHeader:focus": {
+    color: "primary.main",
+  },
+});
+
 export default function Recomendador() {
+  const { usuario } = useParams(); // Obtiene el nombre de usuario de la URL
+  const [infoUser, setInfoUser] = useState({}); // Estado para la información del usuario]
+  const navigate = useNavigate();
   const [nombre, setNombre] = useState(""); // Estado para el nombre del jugador
   const [puntos, setPuntos] = useState(0); // Estado para los puntos del jugador
   const [partidos, setPartidos] = useState(0); // Estado para los partidos jugados del jugador
@@ -112,10 +134,15 @@ export default function Recomendador() {
   const [rebotes, setRebotes] = useState(0); // Estado para los rebotes del jugador
   const [faltas, setFaltas] = useState(0); // Estado para las faltas del jugador
   const [robos, setRobos] = useState(0); // Estado para los robos del jugador
+  const [tapones, setTapones] = useState(0); // Estado para los tapones del jugador
   const [triples, setTriples] = useState(0); // Estado para los triples del jugador
   const [edad, setEdad] = useState(0); // Estado para la edad del jugador
   const [posicion, setPosicion] = useState(""); // Estado para la posicion del jugador
   const [equipo, setEquipo] = useState(""); // Estado para el equipo del jugador
+  const [tirosLibresPartido, setTirosLibresPartido] = useState(0); // Estado para los tiros libres del partido
+  const [jugadoresTabla, setJugadoresTabla] = useState([]);
+  const [jugadores, setJugadores] = useState([]);
+  const [open, setOpen] = useState(false);
 
   const equipos = [
     "MIN",
@@ -149,6 +176,64 @@ export default function Recomendador() {
     "DET",
     "GSW",
   ];
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const getUser = async () => {
+    await axios
+      .get(`http://localhost:5000/usuario/${usuario}`)
+      .then((response) => {
+        setInfoUser(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        alert("Error. Usuario no encontrado");
+        navigate("/");
+      });
+  };
+
+  const compruebaVariables = () => {
+    if (
+      nombre !== "" &&
+      puntos !== 0 &&
+      partidos !== 0 &&
+      asistencias !== 0 &&
+      rebotes !== 0 &&
+      faltas !== 0 &&
+      robos !== 0 &&
+      triples !== 0 &&
+      edad !== 0 &&
+      tapones !== 0 &&
+      posicion !== "" &&
+      equipo !== "" &&
+      tirosLibresPartido !== 0
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const getJugadores = async () => {
+    console.log("Comprobando variables");
+    if (compruebaVariables()) {
+      console.log("Variables comprobadas");
+      await axios
+        .get("http://localhost:5000/jugadores")
+        .then((res) => {
+          const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
+          setJugadores(jugadores); // Asigna un valor a la primera matriz
+          setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      alert("Rellene todos los campos");
+    }
+  };
 
   const handleNombre = (newValue) => {
     setNombre(newValue);
@@ -194,187 +279,368 @@ export default function Recomendador() {
     setEquipo(newValue);
   };
 
-  const handleSearch = () => {};
+  const handleTirosLibres = (newValue) => {
+    setTirosLibresPartido(newValue);
+  };
 
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <UserBar />
-      <Grid
-        container
-        component="main"
-        sx={{
-          height: "100vh",
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80)",
-          backgroundRepeat: "no-repeat",
-          backgroundColor: (t) =>
-            t.palette.mode === "light"
-              ? t.palette.grey[50]
-              : t.palette.grey[900],
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <Grid item xs={12} sm={12} align="center">
-          <StylerButtonBuscar variant="contained" onClick={handleSearch}>
-            Buscar
-          </StylerButtonBuscar>
+  const handleTapones = (newValue) => {
+    setTapones(newValue);
+  };
+
+  const columns = [
+    {
+      field: "nombre",
+      headerName: "Nombre",
+      width: 250,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "edad",
+      headerName: "Edad",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "equipo",
+      headerName: "Equipo",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "posicion",
+      headerName: "Posicion",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "partidos",
+      headerName: "Partidos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "puntos",
+      headerName: "Puntos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "asistencias",
+      headerName: "Asistencias",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "rebotes",
+      headerName: "Rebotes",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tapones",
+      headerName: "Tapones",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "robos",
+      headerName: "Robos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "faltas",
+      headerName: "Faltas",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "triples",
+      headerName: "Triples",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tirosLibresPartido",
+      headerName: "Tiro Libres por Partido",
+      width: 200,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "Info",
+      renderCell: (cellValues) => {
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => {
+              info(event, cellValues);
+            }}
+          >
+            Info
+          </Button>
+        );
+      },
+      width: 20,
+      align: "center",
+      headerAlign: "center",
+    },
+  ];
+
+  const info = (event, cellValues) => {
+    event.preventDefault();
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  if (infoUser !== undefined && Object.keys(infoUser).length !== 0) {
+    return (
+      <ThemeProvider theme={defaultTheme}>
+        <UserBar />
+        <Grid
+          container
+          component="main"
+          sx={{
+            height: "100vh", // Set height to 100vh to occupy the entire screen
+            backgroundRepeat: "no-repeat",
+            backgroundColor: orange[200],
+          }}
+        >
+          <Grid item xs={12} sm={12} align="center" height={50}>
+            <StylerButtonBuscar variant="contained" onClick={getJugadores}>
+              Buscar
+            </StylerButtonBuscar>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center">
+            <StyledTypography variant="h6" align="center">
+              Nombre del Jugador
+            </StyledTypography>
+            <StyledTextField
+              value={nombre}
+              variant="outlined"
+              onChange={handleNombre}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Puntos por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={puntos}
+              onChange={handlePuntos}
+              defaultValue={25}
+              marks
+              min={0}
+              max={50}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Asistencias por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={asistencias}
+              onChange={handleAsistencias}
+              defaultValue={5}
+              marks
+              min={0}
+              max={10}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Rebotes por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={rebotes}
+              onChange={handleRebotes}
+              defaultValue={5}
+              marks
+              min={0}
+              max={10}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Faltas por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={faltas}
+              onChange={handleFaltas}
+              defaultValue={5}
+              marks
+              min={0}
+              max={10}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Partidos Jugados
+            </StyledTypography>
+            <StyledSlider
+              value={partidos}
+              onChange={handlePartidos}
+              defaultValue={45}
+              marks
+              min={0}
+              max={90}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Robos por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={robos}
+              onChange={handleRobos}
+              defaultValue={3}
+              marks
+              min={0}
+              max={6}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Tapones por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={tapones}
+              onChange={handleTapones}
+              defaultValue={3}
+              marks
+              min={0}
+              max={6}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Edad
+            </StyledTypography>
+            <StyledSlider
+              value={edad}
+              onChange={handleEdad}
+              aria-label="Campo 7"
+              defaultValue={30}
+              marks
+              min={18}
+              max={42}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Triples por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={triples}
+              onChange={handleTriples}
+              defaultValue={5}
+              marks
+              min={0}
+              max={10}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Tiros libres por Partido
+            </StyledTypography>
+            <StyledSlider
+              value={tirosLibresPartido}
+              onChange={handleTirosLibres}
+              defaultValue={5}
+              marks
+              min={0}
+              max={10}
+              valueLabelDisplay="auto"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} align="center" height={50}>
+            <StyledTypography variant="h6" align="center">
+              Posicion
+            </StyledTypography>
+            <StyledSelect
+              value={posicion}
+              onChange={handlePosicion}
+              displayEmpty
+            >
+              <MenuItem value={""}>None</MenuItem>
+              <MenuItem value={"PG"}>PG</MenuItem>
+              <MenuItem value={"SG"}>SG</MenuItem>
+              <MenuItem value={"SF"}>SF</MenuItem>
+              <MenuItem value={"PF"}>PF</MenuItem>
+              <MenuItem value={"C"}>C</MenuItem>
+            </StyledSelect>
+          </Grid>
+          <Grid item xs={12} sm={3} align="center">
+            <StyledTypography variant="h6" align="center">
+              Equipo
+            </StyledTypography>
+            <StyledSelect value={equipo} onChange={handleEquipo} displayEmpty>
+              <MenuItem value={""}>None</MenuItem>
+              {equipos.map((equipo) => (
+                <MenuItem key={equipo} value={equipo}>
+                  {equipo}
+                </MenuItem>
+              ))}
+            </StyledSelect>
+          </Grid>
+          <Grid item xs={12} sm={12}>
+            <Container maxWidth={"3400px"}>
+              <Grid item container paddingTop={3} paddingBottom={3}>
+                <StyledDataGrid
+                  {...jugadoresTabla}
+                  columns={columns}
+                  rows={jugadoresTabla}
+                  initialState={{
+                    ...jugadoresTabla.initialState,
+                    pagination: { paginationModel: { pageSize: 20 } },
+                  }}
+                />
+              </Grid>
+            </Container>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={12} align="center">
-          <StyledTypography variant="h6" align="center">
-            Nombre del Jugador
-          </StyledTypography>
-          <StyledTextField
-            value={nombre}
-            variant="outlined"
-            onChange={handleNombre}
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Puntos por Partido
-          </StyledTypography>
-          <StyledSlider
-            value={puntos}
-            onChange={handlePuntos}
-            defaultValue={25}
-            marks
-            min={0}
-            max={50}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Asistencias por Partido
-          </StyledTypography>
-          <StyledSlider
-            value={asistencias}
-            onChange={handleAsistencias}
-            defaultValue={5}
-            marks
-            min={0}
-            max={10}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Rebotes por Partido
-          </StyledTypography>
-          <StyledSlider
-            value={rebotes}
-            onChange={handleRebotes}
-            defaultValue={5}
-            marks
-            min={0}
-            max={10}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Faltas por Partido
-          </StyledTypography>
-          <StyledSlider
-            value={faltas}
-            onChange={handleFaltas}
-            defaultValue={5}
-            marks
-            min={0}
-            max={10}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Partidos Jugados
-          </StyledTypography>
-          <StyledSlider
-            value={partidos}
-            onChange={handlePartidos}
-            defaultValue={45}
-            marks
-            min={0}
-            max={90}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Robos por Partido
-          </StyledTypography>
-          <StyledSlider
-            value={robos}
-            onChange={handleRobos}
-            defaultValue={3}
-            marks
-            min={0}
-            max={6}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Edad
-          </StyledTypography>
-          <StyledSlider
-            value={edad}
-            onChange={handleEdad}
-            aria-label="Campo 7"
-            defaultValue={30}
-            marks
-            min={18}
-            max={42}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Triples por Partido
-          </StyledTypography>
-          <StyledSlider
-            value={triples}
-            onChange={handleTriples}
-            defaultValue={5}
-            marks
-            min={0}
-            max={10}
-            valueLabelDisplay="auto"
-          />
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Posicion
-          </StyledTypography>
-          <StyledSelect value={posicion} onChange={handlePosicion} displayEmpty>
-            <MenuItem value={"PG"}>PG</MenuItem>
-            <MenuItem value={"SG"}>SG</MenuItem>
-            <MenuItem value={"SF"}>SF</MenuItem>
-            <MenuItem value={"PF"}>PF</MenuItem>
-            <MenuItem value={"C"}>C</MenuItem>
-          </StyledSelect>
-        </Grid>
-        <Grid item xs={12} sm={3} align="center">
-          <StyledTypography variant="h6" align="center">
-            Equipo
-          </StyledTypography>
-          <StyledSelect value={equipo} onChange={handleEquipo} displayEmpty>
-            {equipos.map((equipo) => (
-              <MenuItem key={equipo} value={equipo}>
-                {equipo}
-              </MenuItem>
-            ))}
-          </StyledSelect>
-        </Grid>
-      </Grid>
-      <Grid item xs={12}>
-        <TableContainer component={Paper} sx={{ margin: "auto" }}>
-          <Table>
-            {/* Aquí puedes agregar las filas y columnas de la tabla */}
-          </Table>
-        </TableContainer>
-      </Grid>
-    </ThemeProvider>
-  );
+      </ThemeProvider>
+    );
+  }
 }
