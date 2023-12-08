@@ -14,7 +14,7 @@ import Slider from "@mui/material/Slider";
 import { orange } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material";
-import { maxHeight, minHeight } from "@mui/system";
+import GlobalStyles from "@mui/material/GlobalStyles";
 
 const defaultTheme = createTheme({
   typography: {
@@ -46,6 +46,7 @@ const StyledSlider = styled(Slider)({
 
 const StylerButtonBuscar = styled(Button)({
   marginTop: 30,
+  marginBottom: 30,
   height: 100,
   width: 200,
   backgroundColor: orange[300],
@@ -224,6 +225,7 @@ export default function Recomendador() {
         .get("http://localhost:5000/jugadores")
         .then((res) => {
           const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
+          console.log(jugadoresTabla);
           setJugadores(jugadores); // Asigna un valor a la primera matriz
           setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
         })
@@ -427,22 +429,22 @@ export default function Recomendador() {
   if (infoUser !== undefined && Object.keys(infoUser).length !== 0) {
     return (
       <ThemeProvider theme={defaultTheme}>
+        <GlobalStyles
+          styles={{
+            body: { backgroundColor: orange[200] },
+          }}
+        />
         <UserBar />
         <Grid
           container
           component="main"
-          sx={{
-            height: "100vh", // Set height to 100vh to occupy the entire screen
-            backgroundRepeat: "no-repeat",
-            backgroundColor: orange[200],
-          }}
         >
-          <Grid item xs={12} sm={12} align="center" height={50}>
+          <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar variant="contained" onClick={getJugadores}>
               Buscar
             </StylerButtonBuscar>
           </Grid>
-          <Grid item xs={12} sm={12} align="center">
+          <Grid item xs={12} sm={12} align="center" height={120}>
             <StyledTypography variant="h6" align="center">
               Nombre del Jugador
             </StyledTypography>
@@ -452,7 +454,7 @@ export default function Recomendador() {
               onChange={handleNombre}
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Puntos por Partido
             </StyledTypography>
@@ -466,7 +468,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Asistencias por Partido
             </StyledTypography>
@@ -480,7 +482,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Rebotes por Partido
             </StyledTypography>
@@ -494,7 +496,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Faltas por Partido
             </StyledTypography>
@@ -508,7 +510,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Partidos Jugados
             </StyledTypography>
@@ -522,7 +524,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Robos por Partido
             </StyledTypography>
@@ -537,7 +539,7 @@ export default function Recomendador() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Tapones por Partido
             </StyledTypography>
@@ -551,7 +553,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Edad
             </StyledTypography>
@@ -566,7 +568,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Triples por Partido
             </StyledTypography>
@@ -580,7 +582,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Tiros libres por Partido
             </StyledTypography>
@@ -594,7 +596,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={50}>
+          <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Posicion
             </StyledTypography>
@@ -633,8 +635,9 @@ export default function Recomendador() {
                   rows={jugadoresTabla}
                   initialState={{
                     ...jugadoresTabla.initialState,
-                    pagination: { paginationModel: { pageSize: 20 } },
+                    pagination: { paginationModel: { pageSize: 10 } },
                   }}
+                  pageSizeOptions={[10, 20]}
                 />
               </Grid>
             </Container>
