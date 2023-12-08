@@ -62,7 +62,6 @@ const StylerButtonBuscar = styled(Button)({
 });
 
 const StyledSelect = styled(Select)({
-  height: 100,
   width: 200,
   backgroundColor: orange[300],
   opacity: 0.8,
@@ -237,55 +236,55 @@ export default function Recomendador() {
     }
   };
 
-  const handleNombre = (newValue) => {
+  const handleNombre = (event, newValue) => {
     setNombre(newValue);
   };
 
-  const handlePuntos = (newValue) => {
+  const handlePuntos = (event,newValue) => {
     setPuntos(newValue);
   };
 
-  const handlePartidos = (newValue) => {
+  const handlePartidos = (event,newValue) => {
     setPartidos(newValue);
   };
 
-  const handleAsistencias = (newValue) => {
+  const handleAsistencias = (event,newValue) => {
     setAsistencias(newValue);
   };
 
-  const handleRebotes = (newValue) => {
+  const handleRebotes = (event,newValue) => {
     setRebotes(newValue);
   };
 
-  const handleFaltas = (newValue) => {
+  const handleFaltas = (event,newValue) => {
     setFaltas(newValue);
   };
 
-  const handleRobos = (newValue) => {
+  const handleRobos = (event,newValue) => {
     setRobos(newValue);
   };
 
-  const handleTriples = (newValue) => {
+  const handleTriples = (event,newValue) => {
     setTriples(newValue);
   };
 
-  const handleEdad = (newValue) => {
+  const handleEdad = (event,newValue) => {
     setEdad(newValue);
   };
 
-  const handlePosicion = (newValue) => {
+  const handlePosicion = (event,newValue) => {
     setPosicion(newValue);
   };
 
-  const handleEquipo = (newValue) => {
+  const handleEquipo = (event,newValue) => {
     setEquipo(newValue);
   };
 
-  const handleTirosLibres = (newValue) => {
+  const handleTirosLibres = (event,newValue) => {
     setTirosLibresPartido(newValue);
   };
 
-  const handleTapones = (newValue) => {
+  const handleTapones = (event,newValue) => {
     setTapones(newValue);
   };
 
@@ -435,10 +434,7 @@ export default function Recomendador() {
           }}
         />
         <UserBar />
-        <Grid
-          container
-          component="main"
-        >
+        <Grid container component="main">
           <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar variant="contained" onClick={getJugadores}>
               Buscar
@@ -596,7 +592,7 @@ export default function Recomendador() {
               valueLabelDisplay="auto"
             />
           </Grid>
-          <Grid item xs={12} sm={3} align="center" height={100}>
+          <Grid item xs={12} sm={3} align="center">
             <StyledTypography variant="h6" align="center">
               Posicion
             </StyledTypography>
