@@ -280,15 +280,24 @@ app.get("/jugadores", async (req, res) => {
       const jugadores = result.records.map(
         (record) => record.get("j").properties
       );
-      console.log("HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-      const jugadoresTabla = jugadores.map((jugador, i) => ({
+
+      // Modificar el parámetro deseado en todos los jugadores
+      const jugadoresModificados = jugadores.map((jugador) => {
+        // Cambiar el parámetro deseado
+        jugador.edad = jugador.edad.low;
+        jugador.partidosJugados = jugador.partidosJugados.low;
+        jugador.partidosTitular = jugador.partidosTitular.low;
+        return jugador;
+      });
+
+      const jugadoresTabla = jugadoresModificados.map((jugador, i) => ({
         id: i,
         nombre: jugador.nombre,
         puntos: jugador.puntosPartido,
-        edad: jugador.edad.low,
+        edad: jugador.edad,
         equipo: jugador.equipo,
         posicion: jugador.posicion,
-        partidos: jugador.partidosJugados.low,
+        partidos: jugador.partidosJugados,
         asistencias: jugador.asistenciasPartido,
         rebotes: jugador.rebotesTotalesPartido,
         tapones: jugador.taponesPartido,
@@ -298,7 +307,7 @@ app.get("/jugadores", async (req, res) => {
         tirosLibresPartido: jugador.tirosLibresAcertadosPartido,
       }));
 
-      res.status(200).send({ jugadores, jugadoresTabla });
+      res.status(200).send({ jugadores: jugadoresModificados, jugadoresTabla });
     })
     .catch((error) => {
       console.error(error);

@@ -15,6 +15,7 @@ import { orange } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material";
 import GlobalStyles from "@mui/material/GlobalStyles";
+import Player_Card from "../componentes/player_card";
 
 const defaultTheme = createTheme({
   typography: {
@@ -143,6 +144,7 @@ export default function Recomendador() {
   const [jugadoresTabla, setJugadoresTabla] = useState([]);
   const [jugadores, setJugadores] = useState([]);
   const [open, setOpen] = useState(false);
+  const [infoJugador, setInfoJugador] = useState({}); // Estado para la información del jugador
 
   const equipos = [
     "MIN",
@@ -224,6 +226,7 @@ export default function Recomendador() {
         .get("http://localhost:5000/jugadores")
         .then((res) => {
           const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
+          console.log(jugadores);
           console.log(jugadoresTabla);
           setJugadores(jugadores); // Asigna un valor a la primera matriz
           setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
@@ -240,51 +243,51 @@ export default function Recomendador() {
     setNombre(newValue);
   };
 
-  const handlePuntos = (event,newValue) => {
+  const handlePuntos = (event, newValue) => {
     setPuntos(newValue);
   };
 
-  const handlePartidos = (event,newValue) => {
+  const handlePartidos = (event, newValue) => {
     setPartidos(newValue);
   };
 
-  const handleAsistencias = (event,newValue) => {
+  const handleAsistencias = (event, newValue) => {
     setAsistencias(newValue);
   };
 
-  const handleRebotes = (event,newValue) => {
+  const handleRebotes = (event, newValue) => {
     setRebotes(newValue);
   };
 
-  const handleFaltas = (event,newValue) => {
+  const handleFaltas = (event, newValue) => {
     setFaltas(newValue);
   };
 
-  const handleRobos = (event,newValue) => {
+  const handleRobos = (event, newValue) => {
     setRobos(newValue);
   };
 
-  const handleTriples = (event,newValue) => {
+  const handleTriples = (event, newValue) => {
     setTriples(newValue);
   };
 
-  const handleEdad = (event,newValue) => {
+  const handleEdad = (event, newValue) => {
     setEdad(newValue);
   };
 
-  const handlePosicion = (event,newValue) => {
+  const handlePosicion = (event, newValue) => {
     setPosicion(newValue);
   };
 
-  const handleEquipo = (event,newValue) => {
+  const handleEquipo = (event, newValue) => {
     setEquipo(newValue);
   };
 
-  const handleTirosLibres = (event,newValue) => {
+  const handleTirosLibres = (event, newValue) => {
     setTirosLibresPartido(newValue);
   };
 
-  const handleTapones = (event,newValue) => {
+  const handleTapones = (event, newValue) => {
     setTapones(newValue);
   };
 
@@ -419,12 +422,21 @@ export default function Recomendador() {
 
   const info = (event, cellValues) => {
     event.preventDefault();
+    setInfoJugador(jugadores[cellValues.row.id]);
+    handleOpen();
+
+  };
+
+  const handleOpen = () => {
+    console.log("Abriendo");
     setOpen(true);
   };
 
   const handleClose = () => {
+    console.log("Cerrando");
     setOpen(false);
   };
+
   if (infoUser !== undefined && Object.keys(infoUser).length !== 0) {
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -450,6 +462,14 @@ export default function Recomendador() {
               onChange={handleNombre}
             />
           </Grid>
+          {open ? (
+            <Player_Card
+              user={infoUser}
+              jugador={infoJugador}
+              cerrarDialogo={handleClose}
+              open={open}
+            />
+          ) : null}
           <Grid item xs={12} sm={3} align="center" height={100}>
             <StyledTypography variant="h6" align="center">
               Puntos por Partido
