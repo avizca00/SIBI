@@ -235,7 +235,31 @@ export default function Recomendador() {
           console.log(error);
         });
     } else {
-      alert("Rellene todos los campos");
+      let body = {
+        nombre: nombre,
+        puntos: puntos,
+        partidos: partidos,
+        asistencias: asistencias,
+        rebotes: rebotes,
+        faltas: faltas,
+        robos: robos,
+        triples: triples,
+        edad: edad,
+        tapones: tapones,
+        posicion: posicion,
+        equipo: equipo,
+        tirosLibresPartido: tirosLibresPartido,
+      };
+
+      await axios.get("http://localhost:5000/jugadoresCar", body).then((res) => {
+        const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
+        console.log(jugadores);
+        console.log(jugadoresTabla);
+        setJugadores(jugadores); // Asigna un valor a la primera matriz
+        setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
+      }).catch((error) => {
+        console.log(error);
+      });
     }
   };
 
@@ -424,7 +448,6 @@ export default function Recomendador() {
     event.preventDefault();
     setInfoJugador(jugadores[cellValues.row.id]);
     handleOpen();
-
   };
 
   const handleOpen = () => {

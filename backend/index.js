@@ -90,23 +90,83 @@ app.post("/registro", (req, res) => {
  * Endpoint para obtener todos los jugadores con un determinado número de puntos, rebotes y asistencias
  */
 app.get("/jugadoresCar", (req, res) => {
-  const { puntos, rebotes, asistencias } = req.body;
+  const {
+    nombre,
+    puntos,
+    partidos,
+    rebotes,
+    asistencias,
+    faltas,
+    robos,
+    triples,
+    edad,
+    tapones,
+    posicion,
+    equipo,
+    tirosLibresPartido,
+  } = req.body;
+  const query = "";
 
-  const query = `MATCH (j:Jugador) WHERE j.puntos = $puntos AND j.rebotes = $rebotes AND j.asistencias = $asistencias RETURN j`;
+  if (nombre === "") {
+    query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
+j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND j.posicion = $posicion AND j.equipo = $equipo AND 
+j.tirosLibresAcertadosPartido >= $tirosLibresPartido RETURN j`;
+  }else {
+    query = `MATCH (j:Jugador) WHERE j.nombre CONTAINS $nombre AND j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
+    j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND j.posicion = $posicion AND j.equipo = $equipo AND 
+    j.tirosLibresAcertadosPartido >= $tirosLibresPartido RETURN j`;
+  
+  }
 
   let sesion = driver.session();
 
   sesion
     .run(query, {
-      puntos: parseInt(puntos),
-      rebotes: parseInt(rebotes),
-      asistencias: parseInt(asistencias),
+      nombre: nombre,
+      puntos: puntos,
+      partidos: partidos,
+      rebotes: rebotes,
+      asistencias: asistencias,
+      faltas: faltas,
+      robos: robos,
+      triples: triples,
+      edad: edad,
+      tapones: tapones,
+      posicion: posicion,
+      equipo: equipo,
+      tirosLibresPartido: tirosLibresPartido,
     })
     .then((result) => {
       const jugadores = result.records.map(
         (record) => record.get("j").properties
       );
-      res.status(200).send(jugadores);
+      // Modificar el parámetro deseado en todos los jugadores
+      const jugadoresModificados = jugadores.map((jugador) => {
+        // Cambiar el parámetro deseado
+        jugador.edad = jugador.edad.low;
+        jugador.partidosJugados = jugador.partidosJugados.low;
+        jugador.partidosTitular = jugador.partidosTitular.low;
+        return jugador;
+      });
+
+      const jugadoresTabla = jugadoresModificados.map((jugador, i) => ({
+        id: i,
+        nombre: jugador.nombre,
+        puntos: jugador.puntosPartido,
+        edad: jugador.edad,
+        equipo: jugador.equipo,
+        posicion: jugador.posicion,
+        partidos: jugador.partidosJugados,
+        asistencias: jugador.asistenciasPartido,
+        rebotes: jugador.rebotesTotalesPartido,
+        tapones: jugador.taponesPartido,
+        robos: jugador.robosPartido,
+        faltas: jugador.faltasPersonalesPartido,
+        triples: jugador.triplesAcertadosPartido,
+        tirosLibresPartido: jugador.tirosLibresAcertadosPartido,
+      }));
+
+      res.status(200).send({ jugadores: jugadoresModificados, jugadoresTabla });
     })
     .catch((error) => {
       console.error(error);
@@ -224,14 +284,14 @@ app.post("/visitarPerfil/:usuario", (req, res) => {
     .then(() => sesion.close());
 });
 
-app.get("/favoritos/:usuario", (req, res) => {
+app.get("/favoritos/:usuario", async (req, res) => {
   const { usuario } = req.params;
 
   const query = `MATCH (u:Usuario {nombre: $usuario})-[:ES_FAVORITO]->(j:Jugador) RETURN j`;
 
   let sesion = driver.session();
 
-  sesion
+  await sesion
     .run(query, { usuario: usuario })
     .then((result) => {
       const jugadores = result.records.map(
@@ -246,7 +306,7 @@ app.get("/favoritos/:usuario", (req, res) => {
     .then(() => sesion.close());
 });
 
-app.post("/favoritos/:usuario", (req, res) => {
+app.post("/favoritos/:usuario", async (req, res) => {
   const { jugador } = req.body;
   const { usuario } = req.params;
 
@@ -257,7 +317,7 @@ app.post("/favoritos/:usuario", (req, res) => {
 
   let sesion = driver.session();
 
-  sesion
+  await sesion
     .run(query, { usuario: usuario, jugador: jugador })
     .then(() => {
       res.status(200).send({ message: "Jugador añadido a favoritos" });
@@ -266,7 +326,7 @@ app.post("/favoritos/:usuario", (req, res) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
     })
-    .then(() => sesion.close());
+    .then(async () => await sesion.close());
 });
 
 app.get("/jugadores", async (req, res) => {
