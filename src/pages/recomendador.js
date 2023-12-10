@@ -188,10 +188,9 @@ export default function Recomendador() {
       .get(`http://localhost:5000/usuario/${usuario}`)
       .then((response) => {
         setInfoUser(response.data);
-        console.log(response.data);
       })
       .catch((error) => {
-        alert("Error. Usuario no encontrado");
+        alert("Error. Usuario no encontrado" + error);
         navigate("/");
       });
   };
@@ -219,20 +218,19 @@ export default function Recomendador() {
   };
 
   const getJugadores = async () => {
-    console.log("Comprobando variables");
     if (compruebaVariables()) {
-      console.log("Variables comprobadas");
       await axios
         .get("http://localhost:5000/jugadores")
         .then((res) => {
           const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
-          console.log(jugadores);
-          console.log(jugadoresTabla);
           setJugadores(jugadores); // Asigna un valor a la primera matriz
           setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
         })
         .catch((error) => {
-          console.log(error);
+          alert(
+            "Error. No se han podido obtener los jugadores. Inténtelo de nuevo más tarde" +
+              error
+          );
         });
     } else {
       let body = {
@@ -251,15 +249,16 @@ export default function Recomendador() {
         tirosLibresPartido: tirosLibresPartido,
       };
 
-      await axios.get("http://localhost:5000/jugadoresCar", body).then((res) => {
-        const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
-        console.log(jugadores);
-        console.log(jugadoresTabla);
-        setJugadores(jugadores); // Asigna un valor a la primera matriz
-        setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
-      }).catch((error) => {
-        console.log(error);
-      });
+      await axios
+        .get("http://localhost:5000/jugadoresCar", body)
+        .then((res) => {
+          const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
+          setJugadores(jugadores); // Asigna un valor a la primera matriz
+          setJugadoresTabla(jugadoresTabla); // Asigna un valor a la segunda matriz
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 

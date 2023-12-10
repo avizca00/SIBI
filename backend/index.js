@@ -17,6 +17,7 @@ const cors = require("cors");
  * Importamos la conexión a la base de datos
  */
 const driver = require("./conexionDB");
+const e = require("express");
 
 /**
  * Configuramos el puerto del servidor
@@ -105,18 +106,21 @@ app.get("/jugadoresCar", (req, res) => {
     equipo,
     tirosLibresPartido,
   } = req.body;
-  const query = "";
 
-  if (nombre === "") {
-    query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
-j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND j.posicion = $posicion AND j.equipo = $equipo AND 
-j.tirosLibresAcertadosPartido >= $tirosLibresPartido RETURN j`;
-  }else {
-    query = `MATCH (j:Jugador) WHERE j.nombre CONTAINS $nombre AND j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
-    j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND j.posicion = $posicion AND j.equipo = $equipo AND 
-    j.tirosLibresAcertadosPartido >= $tirosLibresPartido RETURN j`;
-  
+  const query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
+  j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND 
+  j.tirosLibresAcertadosPartido >= $tirosLibresPartido `;
+
+  if (nombre !== "") {
+    query += `AND j.nombre CONTAINS $nombre `;
   }
+  if (equipo !== "") {
+    query += `AND j.equipo CONTAINS $equipo `;
+  }
+  if (posicion !== "") {
+    query += `AND j.posicion CONTAINS $posicion `;
+  }
+  query += `RETURN j`;
 
   let sesion = driver.session();
 
@@ -142,7 +146,6 @@ j.tirosLibresAcertadosPartido >= $tirosLibresPartido RETURN j`;
       );
       // Modificar el parámetro deseado en todos los jugadores
       const jugadoresModificados = jugadores.map((jugador) => {
-        // Cambiar el parámetro deseado
         jugador.edad = jugador.edad.low;
         jugador.partidosJugados = jugador.partidosJugados.low;
         jugador.partidosTitular = jugador.partidosTitular.low;
