@@ -197,20 +197,21 @@ export default function Recomendador() {
 
   const compruebaVariables = () => {
     if (
-      nombre !== "" &&
-      puntos !== 0 &&
-      partidos !== 0 &&
-      asistencias !== 0 &&
-      rebotes !== 0 &&
-      faltas !== 0 &&
-      robos !== 0 &&
-      triples !== 0 &&
-      edad !== 0 &&
-      tapones !== 0 &&
-      posicion !== "" &&
-      equipo !== "" &&
+      nombre !== "" ||
+      puntos !== 0 ||
+      partidos !== 0 ||
+      asistencias !== 0 ||
+      rebotes !== 0 ||
+      faltas !== 0 ||
+      robos !== 0 ||
+      triples !== 0 ||
+      edad !== 0 ||
+      tapones !== 0 ||
+      posicion !== "" ||
+      equipo !== "" ||
       tirosLibresPartido !== 0
     ) {
+      console.log("Todas las variables");
       return false;
     } else {
       return true;

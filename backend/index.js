@@ -91,6 +91,7 @@ app.post("/registro", (req, res) => {
  * Endpoint para obtener todos los jugadores con un determinado número de puntos, rebotes y asistencias
  */
 app.get("/jugadoresCar", (req, res) => {
+  console.log("holalalalallalala");
   const {
     nombre,
     puntos,
@@ -107,7 +108,9 @@ app.get("/jugadoresCar", (req, res) => {
     tirosLibresPartido,
   } = req.body;
 
-  const query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
+  console.log("paca");
+
+  let query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
   j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND 
   j.tirosLibresAcertadosPartido >= $tirosLibresPartido `;
 
@@ -123,11 +126,11 @@ app.get("/jugadoresCar", (req, res) => {
   query += `RETURN j`;
 
   let sesion = driver.session();
-
+  //MIRAR PARAMETROS
   sesion
     .run(query, {
-      nombre: nombre,
       puntos: puntos,
+      nombre: nombre,
       partidos: partidos,
       rebotes: rebotes,
       asistencias: asistencias,
