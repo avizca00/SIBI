@@ -146,6 +146,8 @@ export default function Recomendador() {
   const [open, setOpen] = useState(false);
   const [infoJugador, setInfoJugador] = useState({}); // Estado para la información del jugador
   const [favoritos, setFavoritos] = useState([]); // Estado para los favoritos del usuario
+  const [jugadoresSimilares, setJugadoresSimilares] = useState([]); // Estado para los jugadores similares del usuario
+  const [jugadoresSimilaresTabla, setJugadoresSimilaresTabla] = useState([]); // Estado para los jugadores similares del usuario
 
   const equipos = [
     "MIN",
@@ -443,12 +445,51 @@ export default function Recomendador() {
       align: "center",
       headerAlign: "center",
     },
+    {
+      field: "Similares",
+      renderCell: (cellValues) => {
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => {
+              getJugadoresSimilares(event, cellValues);
+            }}
+          >
+            Jugadores Similares
+          </Button>
+        );
+      },
+      width: 40,
+      align: "center",
+      headerAlign: "center",
+    },
   ];
 
   const info = (event, cellValues) => {
     event.preventDefault();
     setInfoJugador(jugadores[cellValues.row.id]);
     handleOpen();
+  };
+
+  const getJugadoresSimilares = async (event, cellValues) => {
+    event.preventDefault();
+    const selectedRowNumber = cellValues.row.id;
+    const selectedJugador = jugadores[selectedRowNumber];
+
+    await axios
+      .get(`http://localhost:5000/jugadoresSimilares/${selectedJugador.nombre}`)
+      .then((res) => {
+        const { jugadoresSimilares, jugadoresSimilaresTabla } = res.data; // Desestructura la respuesta en dos matrices
+        setJugadores(jugadoresSimilares); // Asigna un valor a la primera matriz
+        setJugadoresTabla(jugadoresSimilaresTabla); // Asigna un valor a la segunda matriz
+      })
+      .catch((error) => {
+        alert(
+          "Error. No se han podido obtener los jugadores. Inténtelo de nuevo más tarde" +
+            error
+        );
+      });
   };
 
   const handleOpen = () => {
@@ -687,6 +728,29 @@ export default function Recomendador() {
             <StylerButtonBuscar variant="contained" onClick={getJugadores}>
               Jugadores Similares
             </StylerButtonBuscar>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center" height={20}>
+            <Typography variant="subtitle1" color={"white"}>
+              Haz clic para obtener jugadores similares teniendo seleccionado
+              uno de la anterior tabla
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={12}>
+            <Container maxWidth={"3400px"}>
+              <Grid item container paddingTop={3} paddingBottom={3}>
+                <StyledDataGrid
+                  {...jugadoresSimilaresTabla}
+                  columns={columns}
+                  rows={jugadoresSimilaresTabla}
+                  initialState={{
+                    ...jugadoresSimilaresTabla.initialState,
+                    pagination: { paginationModel: { pageSize: 10 } },
+                  }}
+                  pageSizeOptions={[10, 20]}
+                />
+              </Grid>
+            </Container>
           </Grid>
         </Grid>
       </ThemeProvider>

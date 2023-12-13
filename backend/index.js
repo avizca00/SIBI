@@ -179,22 +179,23 @@ app.post("/jugadoresCar", (req, res) => {
     .then(() => sesion.close());
 });
 
-app.get("/jugadoresSimilares/:nombre", (req, res) => {
+app.get("/jugadoresSimilares/:nombre", async (req, res) => {
   const { nombre } = req.params;
 
   const query = `
     MATCH (j1:Jugador {nombre: $nombre})
     MATCH (j2:Jugador)
-    WHERE j2 <> j1
+    WHERE j2 <> j1 AND j2.posicion = j1.posicion
     WITH j1, j2,
-      SQRT(POWER(j1.puntos - j2.puntos, 2) + POWER(j1.rebotes - j2.rebotes, 2) + POWER(j1.asistencias - j2.asistencias, 2)) AS distancia
+    gds.alpha.similarity.euclideanDistance([j1.asistenciasPartido, j1.canastasPartido, j1.efectividadEnTirosDeCampo, j1.propiapuerta, j1.golesCedidos], \
+      [j2.partidosJugados, j2.partidosEnteros, j2.rojadirecta, j2.propiapuerta, j2.golesCedidos]) AS distancia
     RETURN j2, distancia
     ORDER BY distancia ASC
   `;
 
   let sesion = driver.session();
 
-  sesion
+  await sesion
     .run(query, { nombre: nombre })
     .then((result) => {
       const jugadores = result.records.map(
