@@ -264,8 +264,6 @@ export default function Recomendador() {
     }
   };
 
-  
-
   const handleNombre = (event) => {
     setNombre(event.target.value);
   };
@@ -684,6 +682,11 @@ export default function Recomendador() {
                 />
               </Grid>
             </Container>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center" height={150}>
+            <StylerButtonBuscar variant="contained" onClick={getJugadores}>
+              Jugadores Similares
+            </StylerButtonBuscar>
           </Grid>
         </Grid>
       </ThemeProvider>

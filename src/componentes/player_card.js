@@ -22,16 +22,17 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
   const [info, setInfo] = useState({});
   const [infoUsuario, setInfoUsuario] = useState({});
   const [isFavorite, setIsFavorite] = useState("No");
-  const [favoritos, setFavoritos] = useState([]); // Estado para los favoritos del usuario
 
   useEffect(() => {
     console.log(user);
+    //visitaJugador();
     if (jugador !== undefined && user !== undefined) {
+      //visitaJugador();
       setInfo(jugador);
       setInfoUsuario(user);
       getFavoritos();
     }
-  }, [open, jugador, user, isFavorite]);
+  }, [open]);
 
   const styles = {
     fontd: {
@@ -52,7 +53,6 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
     await axios
       .get(`http://localhost:5000/favoritos/${user.nombre}`)
       .then((response) => {
-        setFavoritos(response.data);
         const favoritePlayer = response.data.find(
           (player) => player.nombre === jugador.nombre
         );
@@ -63,6 +63,17 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
         } else {
           setIsFavorite("No");
         }
+        visitaJugador();
+      })
+      .catch((error) => {
+        alert("Ha ocurrido un error" + error);
+      });
+  };
+
+  const visitaJugador = async () => {
+    await axios
+      .post(`http://localhost:5000/visitarPerfil/${user.nombre}`, {
+        nombre: jugador.nombre,
       })
       .catch((error) => {
         alert("Ha ocurrido un error" + error);

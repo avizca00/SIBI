@@ -17,7 +17,6 @@ const cors = require("cors");
  * Importamos la conexión a la base de datos
  */
 const driver = require("./conexionDB");
-const e = require("express");
 
 /**
  * Configuramos el puerto del servidor
@@ -239,7 +238,6 @@ app.get("/jugadoresVisitados/:usuario", (req, res) => {
 
 app.get("/usuario/:nombre", async (req, res) => {
   const { nombre } = req.params;
-  console.log({ nombre });
 
   const query = `
     MATCH (u:Usuario {nombre: $nombre})
@@ -254,7 +252,6 @@ app.get("/usuario/:nombre", async (req, res) => {
       const usuario = result.records.map(
         (record) => record.get("u").properties
       )[0]; // Obtener el primer elemento del array
-      console.log(usuario);
       res.status(200).send(usuario);
     })
     .catch((error) => {
@@ -264,8 +261,8 @@ app.get("/usuario/:nombre", async (req, res) => {
     .then(async () => await sesion.close());
 });
 
-app.post("/visitarPerfil/:usuario", (req, res) => {
-  const { jugador } = req.body;
+app.post("/visitarPerfil/:usuario", async (req, res) => {
+  const { nombre } = req.body;
   const { usuario } = req.params;
 
   const query = `
@@ -277,8 +274,8 @@ app.post("/visitarPerfil/:usuario", (req, res) => {
 
   let sesion = driver.session();
 
-  sesion
-    .run(query, { usuario: usuario, jugador: jugador })
+  await sesion
+    .run(query, { usuario: usuario, jugador: nombre })
     .then(() => {
       res.status(200).send({ message: "Perfil visitado correctamente" });
     })
@@ -286,9 +283,12 @@ app.post("/visitarPerfil/:usuario", (req, res) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
     })
-    .then(() => sesion.close());
+    .then(async () => await sesion.close());
 });
 
+/**
+ * Endpoint para obtener todos los jugadores favoritos de un usuario
+ */
 app.get("/favoritos/:usuario", async (req, res) => {
   const { usuario } = req.params;
 
@@ -311,6 +311,9 @@ app.get("/favoritos/:usuario", async (req, res) => {
     .then(async () => await sesion.close());
 });
 
+/**
+ * Endpoint para añadir un jugador a favoritos
+ */
 app.post("/favoritos/:usuario", async (req, res) => {
   const { nombre } = req.body;
   const { usuario } = req.params;
@@ -334,6 +337,9 @@ app.post("/favoritos/:usuario", async (req, res) => {
     .then(async () => await sesion.close());
 });
 
+/**
+ * Endpoint para eliminar un jugador de favoritos
+ */
 app.delete("/favoritos/:usuario/:nombre", async (req, res) => {
   const { usuario, nombre } = req.params;
 
@@ -356,6 +362,9 @@ app.delete("/favoritos/:usuario/:nombre", async (req, res) => {
     .then(async () => await sesion.close());
 });
 
+/**
+ * Endpoint para obtener todos los jugadores
+ */
 app.get("/jugadores", async (req, res) => {
   const query = "MATCH (j:Jugador) RETURN j";
 
