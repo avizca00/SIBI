@@ -91,7 +91,6 @@ app.post("/registro", (req, res) => {
  * Endpoint para obtener todos los jugadores con un determinado número de puntos, rebotes y asistencias
  */
 app.post("/jugadoresCar", (req, res) => {
-  console.log("holalalalallalala");
   const {
     nombre,
     puntos,
@@ -107,9 +106,6 @@ app.post("/jugadoresCar", (req, res) => {
     equipo,
     tirosLibresPartido,
   } = req.body;
-
-  console.log(req);
-  console.log("paca");
 
   let query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
   j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND 
@@ -257,12 +253,12 @@ app.get("/usuario/:nombre", async (req, res) => {
     .then((result) => {
       const usuario = result.records.map(
         (record) => record.get("u").properties
-      );
+      )[0]; // Obtener el primer elemento del array
+      console.log(usuario);
       res.status(200).send(usuario);
     })
     .catch((error) => {
       console.error(error);
-      console.log(nombre);
       res.status(500).send({ message: "Internal server error" });
     })
     .then(async () => await sesion.close());
@@ -312,24 +308,46 @@ app.get("/favoritos/:usuario", async (req, res) => {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
     })
-    .then(() => sesion.close());
+    .then(async () => await sesion.close());
 });
 
 app.post("/favoritos/:usuario", async (req, res) => {
-  const { jugador } = req.body;
+  const { nombre } = req.body;
   const { usuario } = req.params;
 
   const query = `
-    MATCH (u:Usuario {nombre: $usuario}), (j:Jugador {nombre: $jugador})
+    MATCH (u:Usuario {nombre: $usuario}), (j:Jugador {nombre: $nombre})
     MERGE (u)-[:ES_FAVORITO]->(j)
   `;
 
   let sesion = driver.session();
 
   await sesion
-    .run(query, { usuario: usuario, jugador: jugador })
+    .run(query, { usuario: usuario, nombre: nombre })
     .then(() => {
       res.status(200).send({ message: "Jugador añadido a favoritos" });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send({ message: "Internal server error" });
+    })
+    .then(async () => await sesion.close());
+});
+
+app.delete("/favoritos/:usuario/:nombre", async (req, res) => {
+  const { usuario, nombre } = req.params;
+
+  const query = `
+    MATCH (u:Usuario {nombre: $usuario})-[r:ES_FAVORITO]->(j:Jugador {nombre: $nombre})
+    DELETE r
+  `;
+
+  let sesion = driver.session();
+
+  await sesion
+    .run(query, { usuario: usuario, nombre: nombre })
+    .then(() => {
+      res.status(200).send({ message: "Relación eliminada correctamente" });
     })
     .catch((error) => {
       console.error(error);

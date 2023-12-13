@@ -145,6 +145,7 @@ export default function Recomendador() {
   const [jugadores, setJugadores] = useState([]);
   const [open, setOpen] = useState(false);
   const [infoJugador, setInfoJugador] = useState({}); // Estado para la información del jugador
+  const [favoritos, setFavoritos] = useState([]); // Estado para los favoritos del usuario
 
   const equipos = [
     "MIN",
@@ -250,8 +251,6 @@ export default function Recomendador() {
         tirosLibresPartido: tirosLibresPartido,
       };
 
-      console.log(body);
-
       await axios
         .post("http://localhost:5000/jugadoresCar", body)
         .then((res) => {
@@ -264,6 +263,8 @@ export default function Recomendador() {
         });
     }
   };
+
+  
 
   const handleNombre = (event) => {
     setNombre(event.target.value);

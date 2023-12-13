@@ -8,7 +8,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import StarIcon from "@mui/icons-material/Star";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Divider } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -19,14 +19,17 @@ import {
 import { orange } from "@mui/material/colors";
 
 export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
-  const navigate = useNavigate();
   const [info, setInfo] = useState({});
+  const [infoUsuario, setInfoUsuario] = useState({});
   const [isFavorite, setIsFavorite] = useState("No");
+  const [favoritos, setFavoritos] = useState([]); // Estado para los favoritos del usuario
 
   useEffect(() => {
+    console.log(user);
     if (jugador !== undefined && user !== undefined) {
       setInfo(jugador);
-      //setDatos();
+      setInfoUsuario(user);
+      getFavoritos();
     }
   }, [open, jugador, user, isFavorite]);
 
@@ -45,73 +48,54 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
     },
   };
 
-  /*const setDatos = () => {
-    if (user !== undefined) {
-      if (user.esAdmin === false) {
-        if (user.peliculasPendientes.includes(info._id)) {
-          setIsAddedToPendientes("Si");
-          setIsAddedToVistas("No");
-          setIsFavorite("No");
-          setIsRated(0);
+  const getFavoritos = async () => {
+    await axios
+      .get(`http://localhost:5000/favoritos/${user.nombre}`)
+      .then((response) => {
+        setFavoritos(response.data);
+        const favoritePlayer = response.data.find(
+          (player) => player.nombre === jugador.nombre
+        );
+
+        if (favoritePlayer) {
+          console.log("Es favorito");
+          setIsFavorite("Si");
         } else {
-          const a = user.peliculasVistas.find(
-            (peli) => peli.pelicula === info._id
-          );
-
-          if (a !== undefined) {
-            setIsAddedToPendientes("No");
-            setIsAddedToVistas("Si");
-            if (a.esFavorita === true) {
-              setIsFavorite("Si");
-            } else {
-              setIsFavorite("No");
-            }
-            setIsRated(a.puntuacion);
-          }
+          setIsFavorite("No");
         }
-      } else {
-        console.log("o aqui");
-        alert("El usuario no es de tipo usuario. Redirigiendo a login");
-        navigate("/");
-      }
-    }
-  };*/
-
-  const handleToggleFavorite = async () => {
-    /*if (isAddedToVistas === "Si") {
-      const id_usuario = user._id;
-      const id_pelicula = info._id;
-      let fav = true;
-
-      if (isFavorite === "Si") {
-        fav = false;
-      }
-
-      let puntuacion = isRated;
-
-      await axios
-        .put(`/api/usuarios/peliculas_ya_vistas/${id_usuario}/${id_pelicula}`, {
-          esFavorita: fav,
-          puntuacion: puntuacion,
-        })
-        .then(function (response) {
-          if (fav === true) {
-            setIsFavorite("Si");
-          } else {
-            setIsFavorite("No");
-          }
-          getUser();
-        })
-        .catch(function (error) {
-          alert(
-            "No se ha podido guardar como favorita la pelicula con id: " +
-              id_pelicula
-          );
-        });
-    }*/
+      })
+      .catch((error) => {
+        alert("Ha ocurrido un error" + error);
+      });
   };
 
-  if (info !== undefined) {
+  const handleToggleFavorite = async () => {
+    if (isFavorite === "No") {
+      await axios
+        .post(`http://localhost:5000/favoritos/${user.nombre}`, {
+          nombre: jugador.nombre,
+        })
+        .then((response) => {
+          setIsFavorite("Si");
+        })
+        .catch((error) => {
+          alert("Ha ocurrido un error" + error);
+        });
+    } else {
+      await axios
+        .delete(
+          `http://localhost:5000/favoritos/${user.nombre}/${jugador.nombre}`
+        )
+        .then((response) => {
+          setIsFavorite("No");
+        })
+        .catch((error) => {
+          alert("Ha ocurrido un error" + error);
+        });
+    }
+  };
+
+  if (info !== undefined && infoUsuario !== undefined) {
     return (
       <Dialog
         open={open}
@@ -316,6 +300,16 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
                 <DialogContentText style={styles.fontd}>
                   Faltas Personales por Partido por Partido:{" "}
                   {info.faltasPersonalesPartido}
+                </DialogContentText>
+                <>
+                  <br />
+                </>
+                <Divider variant="middle" />
+                <>
+                  <br />
+                </>
+                <DialogContentText style={styles.fontd}>
+                  Favorito: {isFavorite}
                 </DialogContentText>
                 <>
                   <br />
