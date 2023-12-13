@@ -18,7 +18,7 @@ import Container from "@mui/material/Container";
 import { orange } from "@mui/material/colors";
 
 export default function UserBar() {
-  const { user } = useParams();
+  const { usuario } = useParams();
   const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const handleOpenUserMenu = (event) => {
@@ -59,10 +59,10 @@ export default function UserBar() {
     const selectedIndex = event.target.innerText;
     switch (selectedIndex) {
       case "HOME":
-        navigate(`/${user}/recomendador`);
+        navigate(`/${usuario}/recomendador`);
         break;
       case "PERFIL":
-        navigate(`/${user}/perfil`);
+        navigate(`/${usuario}/perfil`);
         break;
       default:
         break;

@@ -90,7 +90,7 @@ app.post("/registro", (req, res) => {
 /**
  * Endpoint para obtener todos los jugadores con un determinado número de puntos, rebotes y asistencias
  */
-app.get("/jugadoresCar", (req, res) => {
+app.post("/jugadoresCar", (req, res) => {
   console.log("holalalalallalala");
   const {
     nombre,
@@ -108,41 +108,44 @@ app.get("/jugadoresCar", (req, res) => {
     tirosLibresPartido,
   } = req.body;
 
+  console.log(req);
   console.log("paca");
 
   let query = `MATCH (j:Jugador) WHERE j.puntosPartido >= $puntos AND j.partidosJugados >= $partidos AND j.rebotesTotalesPartido >= $rebotes AND j.asistenciasPartido >= $asistencias AND 
   j.faltasPersonalesPartido >= $faltas AND j.robosPartido >= $robos AND j.triplesAcertadosPartido >= $triples AND j.edad >= $edad AND j.taponesPartido >= $tapones AND 
   j.tirosLibresAcertadosPartido >= $tirosLibresPartido `;
 
+  let json = {
+    puntos: puntos,
+    partidos: partidos,
+    rebotes: rebotes,
+    asistencias: asistencias,
+    faltas: faltas,
+    robos: robos,
+    triples: triples,
+    edad: edad,
+    tapones: tapones,
+    tirosLibresPartido: tirosLibresPartido,
+  };
+
   if (nombre !== "") {
     query += `AND j.nombre CONTAINS $nombre `;
+    json.nombre = nombre;
   }
   if (equipo !== "") {
     query += `AND j.equipo CONTAINS $equipo `;
+    json.equipo = equipo;
   }
   if (posicion !== "") {
     query += `AND j.posicion CONTAINS $posicion `;
+    json.posicion = posicion;
   }
   query += `RETURN j`;
 
   let sesion = driver.session();
   //MIRAR PARAMETROS
   sesion
-    .run(query, {
-      puntos: puntos,
-      nombre: nombre,
-      partidos: partidos,
-      rebotes: rebotes,
-      asistencias: asistencias,
-      faltas: faltas,
-      robos: robos,
-      triples: triples,
-      edad: edad,
-      tapones: tapones,
-      posicion: posicion,
-      equipo: equipo,
-      tirosLibresPartido: tirosLibresPartido,
-    })
+    .run(query, json)
     .then((result) => {
       const jugadores = result.records.map(
         (record) => record.get("j").properties

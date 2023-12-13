@@ -250,8 +250,10 @@ export default function Recomendador() {
         tirosLibresPartido: tirosLibresPartido,
       };
 
+      console.log(body);
+
       await axios
-        .get("http://localhost:5000/jugadoresCar", body)
+        .post("http://localhost:5000/jugadoresCar", body)
         .then((res) => {
           const { jugadores, jugadoresTabla } = res.data; // Desestructura la respuesta en dos matrices
           setJugadores(jugadores); // Asigna un valor a la primera matriz
@@ -263,8 +265,8 @@ export default function Recomendador() {
     }
   };
 
-  const handleNombre = (event, newValue) => {
-    setNombre(newValue);
+  const handleNombre = (event) => {
+    setNombre(event.target.value);
   };
 
   const handlePuntos = (event, newValue) => {
@@ -299,12 +301,12 @@ export default function Recomendador() {
     setEdad(newValue);
   };
 
-  const handlePosicion = (event, newValue) => {
-    setPosicion(newValue);
+  const handlePosicion = (event) => {
+    setPosicion(event.target.value);
   };
 
-  const handleEquipo = (event, newValue) => {
-    setEquipo(newValue);
+  const handleEquipo = (event) => {
+    setEquipo(event.target.value);
   };
 
   const handleTirosLibres = (event, newValue) => {
@@ -483,6 +485,7 @@ export default function Recomendador() {
               value={nombre}
               variant="outlined"
               onChange={handleNombre}
+              type="text"
             />
           </Grid>
           {open ? (
