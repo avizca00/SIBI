@@ -408,7 +408,35 @@ app.get("/favoritos/:usuario", async (req, res) => {
       const jugadores = result.records.map(
         (record) => record.get("j").properties
       );
-      res.status(200).send(jugadores);
+      const jugadoresModificados = jugadores.map((jugador) => {
+        // Cambiar el parámetro deseado
+        jugador.edad = jugador.edad.low;
+        jugador.partidosJugados = jugador.partidosJugados.low;
+        jugador.partidosTitular = jugador.partidosTitular.low;
+        return jugador;
+      });
+
+      const favoritosTabla = jugadoresModificados.map((jugador, i) => ({
+        id: i,
+        nombre: jugador.nombre,
+        puntos: jugador.puntosPartido,
+        edad: jugador.edad,
+        equipo: jugador.equipo,
+        posicion: jugador.posicion,
+        partidos: jugador.partidosJugados,
+        asistencias: jugador.asistenciasPartido,
+        rebotes: jugador.rebotesTotalesPartido,
+        tapones: jugador.taponesPartido,
+        robos: jugador.robosPartido,
+        faltas: jugador.faltasPersonalesPartido,
+        triples: jugador.triplesAcertadosPartido,
+        tirosLibresPartido: jugador.tirosLibresAcertadosPartido,
+      }));
+
+      res.status(200).send({
+        favoritos: jugadoresModificados,
+        favoritosTabla,
+      });
     })
     .catch((error) => {
       console.error(error);

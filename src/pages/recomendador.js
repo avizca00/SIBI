@@ -146,6 +146,7 @@ export default function Recomendador() {
   const [open, setOpen] = useState(false);
   const [infoJugador, setInfoJugador] = useState({}); // Estado para la información del jugador
   const [favoritos, setFavoritos] = useState([]); // Estado para los favoritos del usuario
+  const [favoritosTabla, setFavoritosTabla] = useState([]); // Estado para los favoritos del usuario
   const [jugadoresSimilares, setJugadoresSimilares] = useState([]); // Estado para los jugadores similares del usuario
   const [jugadoresSimilaresTabla, setJugadoresSimilaresTabla] = useState([]); // Estado para los jugadores similares del usuario
   const [jugadoresRecomendados, setJugadoresRecomendados] = useState([]); // Estado para los jugadores similares del usuario
@@ -286,6 +287,27 @@ export default function Recomendador() {
     event.preventDefault();
     setInfoJugador(jugadoresRecomendados[cellValues.row.id]);
     handleOpen();
+  };
+
+  const info4 = (event, cellValues) => {
+    event.preventDefault();
+    setInfoJugador(favoritos[cellValues.row.id]);
+    handleOpen();
+  };
+
+  const getJugadoresFavorites = async () => {
+    await axios
+      .get(`http://localhost:5000/favoritos/${usuario}`)
+      .then((res) => {
+        const { favoritos, favoritosTabla } = res.data; // Desestructura la respuesta en dos matrices
+        setFavoritos(favoritos); // Asigna un valor a la primera matriz
+        setFavoritosTabla(favoritosTabla); // Asigna un valor a la segunda matriz
+      })
+      .catch((error) => {
+        alert(
+          "Ha ocurrido in error al obtener los jugadores favoritos" + error
+        );
+      });
   };
 
   const getJugadoresSimilares = async (event, cellValues) => {
@@ -792,6 +814,135 @@ export default function Recomendador() {
     },
   ];
 
+  const columns4 = [
+    {
+      field: "nombre",
+      headerName: "Nombre",
+      width: 250,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "edad",
+      headerName: "Edad",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "equipo",
+      headerName: "Equipo",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "posicion",
+      headerName: "Posicion",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "partidos",
+      headerName: "Partidos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "puntos",
+      headerName: "Puntos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "asistencias",
+      headerName: "Asistencias",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "rebotes",
+      headerName: "Rebotes",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tapones",
+      headerName: "Tapones",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "robos",
+      headerName: "Robos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "faltas",
+      headerName: "Faltas",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "triples",
+      headerName: "Triples",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tirosLibresPartido",
+      headerName: "Tiro Libres por Partido",
+      width: 200,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "Info",
+      renderCell: (cellValues) => {
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => {
+              info4(event, cellValues);
+            }}
+          >
+            Info
+          </Button>
+        );
+      },
+      width: 20,
+      align: "center",
+      headerAlign: "center",
+    },
+  ];
+
   if (infoUser !== undefined && Object.keys(infoUser).length !== 0) {
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -824,6 +975,7 @@ export default function Recomendador() {
               jugador={infoJugador}
               cerrarDialogo={handleClose}
               open={open}
+              actualizaFavoritos={getJugadoresFavorites}
             />
           ) : null}
           <Grid item xs={12} sm={3} align="center" height={100}>
@@ -1054,7 +1206,7 @@ export default function Recomendador() {
           <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar
               variant="contained"
-              onClick={getJugadoresRecomendados} 
+              onClick={getJugadoresRecomendados}
             >
               Cargar Recomendados
             </StylerButtonBuscar>
@@ -1067,6 +1219,33 @@ export default function Recomendador() {
                 rows={jugadoresRecomendadosTabla}
                 initialState={{
                   ...jugadoresRecomendadosTabla.initialState,
+                  pagination: { paginationModel: { pageSize: 10 } },
+                }}
+                pageSizeOptions={[10, 20]}
+              />
+            </Grid>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center">
+            <Typography variant="h2" color={"white"}>
+              TUS JUGADORES FAVORITOS
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center" height={150}>
+            <StylerButtonBuscar
+              variant="contained"
+              onClick={getJugadoresFavorites}
+            >
+              Cargar Favoritos
+            </StylerButtonBuscar>
+          </Grid>
+          <Grid item xs={12} sm={12}>
+            <Grid item container paddingTop={3} paddingBottom={3}>
+              <StyledDataGrid
+                {...favoritosTabla}
+                columns={columns4}
+                rows={favoritosTabla}
+                initialState={{
+                  ...favoritosTabla.initialState,
                   pagination: { paginationModel: { pageSize: 10 } },
                 }}
                 pageSizeOptions={[10, 20]}

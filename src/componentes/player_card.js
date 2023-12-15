@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { orange } from "@mui/material/colors";
 
-export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
+export default function MovieInfoCard({ user, jugador, cerrarDialogo, open, actualizaFavoritos }) {
   const [info, setInfo] = useState({});
   const [infoUsuario, setInfoUsuario] = useState({});
   const [isFavorite, setIsFavorite] = useState("No");
@@ -53,7 +53,8 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
     await axios
       .get(`http://localhost:5000/favoritos/${user.nombre}`)
       .then((response) => {
-        const favoritePlayer = response.data.find(
+        const { favoritos } = response.data;
+        const favoritePlayer = favoritos.find(
           (player) => player.nombre === jugador.nombre
         );
 
@@ -66,6 +67,7 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
         visitaJugador();
       })
       .catch((error) => {
+        console.log("Hola");
         alert("Ha ocurrido un error" + error);
       });
   };
@@ -104,6 +106,7 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open }) {
           alert("Ha ocurrido un error" + error);
         });
     }
+    actualizaFavoritos();
   };
 
   if (info !== undefined && infoUsuario !== undefined) {
