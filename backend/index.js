@@ -187,10 +187,12 @@ app.get("/jugadoresSimilares/:nombre", async (req, res) => {
     MATCH (j2:Jugador)
     WHERE j2 <> j1 AND j2.posicion = j1.posicion
     WITH j1, j2,
-    gds.alpha.similarity.euclideanDistance([j1.asistenciasPartido, j1.canastasPartido, j1.efectividadEnTirosDeCampo, j1.propiapuerta, j1.golesCedidos], \
-      [j2.partidosJugados, j2.partidosEnteros, j2.rojadirecta, j2.propiapuerta, j2.golesCedidos]) AS distancia
+    gds.similarity.euclideanDistance([j1.asistenciasPartido, j1.canastasPartido, j1.efectividadEnTirosDeCampo, j1.faltasPersonalesPartido,  j1.perdidasPartido, j1.porcentajeDeTriple, j1.porcentajeTirosDe2Partido, j1.porcentajeTirosDeCampo, j1.porcentajeTirosLibres
+    , j1.puntosPartido, j1.rebotesDefensivosPartido, j1.rebotesOfensivosPartido, j1.rebotesTotalesPartido, j1.robosPartido, j1.taponesPartido, j1.tirosDe2AcertadosPartido, j1.tirosDe2Partido, j1.tirosLibresAcertadosPartido, j1.tirosLibresPartido, j1.tirosPorPartido, j1.triplesAcertadosPartido, j1.triplesPartido ], \
+      [j2.asistenciasPartido, j2.canastasPartido, j2.efectividadEnTirosDeCampo, j2.faltasPersonalesPartido,  j2.perdidasPartido, j2.porcentajeDeTriple, j2.porcentajeTirosDe2Partido, j2.porcentajeTirosDeCampo, j2.porcentajeTirosLibres
+        , j2.puntosPartido, j2.rebotesDefensivosPartido, j2.rebotesOfensivosPartido, j2.rebotesTotalesPartido, j2.robosPartido, j2.taponesPartido, j2.tirosDe2AcertadosPartido, j2.tirosDe2Partido, j2.tirosLibresAcertadosPartido, j2.tirosLibresPartido, j2.tirosPorPartido, j2.triplesAcertadosPartido, j2.triplesPartido]) AS distancia
     RETURN j2, distancia
-    ORDER BY distancia ASC
+    ORDER BY distancia ASC LIMIT 10
   `;
 
   let sesion = driver.session();
@@ -201,7 +203,37 @@ app.get("/jugadoresSimilares/:nombre", async (req, res) => {
       const jugadores = result.records.map(
         (record) => record.get("j2").properties
       );
-      res.status(200).send(jugadores);
+      const jugadoresModificados = jugadores.map((jugador) => {
+        // Cambiar el parámetro deseado
+        jugador.edad = jugador.edad.low;
+        jugador.partidosJugados = jugador.partidosJugados.low;
+        jugador.partidosTitular = jugador.partidosTitular.low;
+        return jugador;
+      });
+
+      const jugadoresSimilaresTabla = jugadoresModificados.map(
+        (jugador, i) => ({
+          id: i,
+          nombre: jugador.nombre,
+          puntos: jugador.puntosPartido,
+          edad: jugador.edad,
+          equipo: jugador.equipo,
+          posicion: jugador.posicion,
+          partidos: jugador.partidosJugados,
+          asistencias: jugador.asistenciasPartido,
+          rebotes: jugador.rebotesTotalesPartido,
+          tapones: jugador.taponesPartido,
+          robos: jugador.robosPartido,
+          faltas: jugador.faltasPersonalesPartido,
+          triples: jugador.triplesAcertadosPartido,
+          tirosLibresPartido: jugador.tirosLibresAcertadosPartido,
+        })
+      );
+
+      res.status(200).send({
+        jugadoresSimilares: jugadoresModificados,
+        jugadoresSimilaresTabla,
+      });
     })
     .catch((error) => {
       console.error(error);

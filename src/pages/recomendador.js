@@ -456,11 +456,140 @@ export default function Recomendador() {
               getJugadoresSimilares(event, cellValues);
             }}
           >
-            Jugadores Similares
+            Similares
           </Button>
         );
       },
-      width: 40,
+      width: 100,
+      align: "center",
+      headerAlign: "center",
+    },
+  ];
+
+  const columns2 = [
+    {
+      field: "nombre",
+      headerName: "Nombre",
+      width: 250,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "edad",
+      headerName: "Edad",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "equipo",
+      headerName: "Equipo",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "posicion",
+      headerName: "Posicion",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "partidos",
+      headerName: "Partidos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "puntos",
+      headerName: "Puntos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "asistencias",
+      headerName: "Asistencias",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "rebotes",
+      headerName: "Rebotes",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tapones",
+      headerName: "Tapones",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "robos",
+      headerName: "Robos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "faltas",
+      headerName: "Faltas",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "triples",
+      headerName: "Triples",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tirosLibresPartido",
+      headerName: "Tiro Libres por Partido",
+      width: 200,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "Info",
+      renderCell: (cellValues) => {
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => {
+              info2(event, cellValues);
+            }}
+          >
+            Info
+          </Button>
+        );
+      },
+      width: 20,
       align: "center",
       headerAlign: "center",
     },
@@ -472,17 +601,23 @@ export default function Recomendador() {
     handleOpen();
   };
 
+  const info2 = (event, cellValues) => {
+    event.preventDefault();
+    setInfoJugador(jugadoresSimilares[cellValues.row.id]);
+    handleOpen();
+  };
+
   const getJugadoresSimilares = async (event, cellValues) => {
     event.preventDefault();
-    const selectedRowNumber = cellValues.row.id;
-    const selectedJugador = jugadores[selectedRowNumber];
+    const selectedJugador = jugadores[cellValues.row.id];
+    console.log(selectedJugador);
 
     await axios
       .get(`http://localhost:5000/jugadoresSimilares/${selectedJugador.nombre}`)
       .then((res) => {
         const { jugadoresSimilares, jugadoresSimilaresTabla } = res.data; // Desestructura la respuesta en dos matrices
-        setJugadores(jugadoresSimilares); // Asigna un valor a la primera matriz
-        setJugadoresTabla(jugadoresSimilaresTabla); // Asigna un valor a la segunda matriz
+        setJugadoresSimilares(jugadoresSimilares); // Asigna un valor a la primera matriz
+        setJugadoresSimilaresTabla(jugadoresSimilaresTabla); // Asigna un valor a la segunda matriz
       })
       .catch((error) => {
         alert(
@@ -724,15 +859,15 @@ export default function Recomendador() {
               </Grid>
             </Container>
           </Grid>
-          <Grid item xs={12} sm={12} align="center" height={150}>
-            <StylerButtonBuscar variant="contained" onClick={getJugadores}>
-              Jugadores Similares
-            </StylerButtonBuscar>
+          <Grid item xs={12} sm={12} align="center">
+            <Typography variant="h2" color={"white"}>
+              JUGADORES SIMILARES
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={12} align="center" height={20}>
             <Typography variant="subtitle1" color={"white"}>
-              Haz clic para obtener jugadores similares teniendo seleccionado
-              uno de la anterior tabla
+              Haz clic en el boton "Similares" de un jugador de la anterior
+              tabla para obtener jugadores similares
             </Typography>
           </Grid>
 
@@ -741,7 +876,7 @@ export default function Recomendador() {
               <Grid item container paddingTop={3} paddingBottom={3}>
                 <StyledDataGrid
                   {...jugadoresSimilaresTabla}
-                  columns={columns}
+                  columns={columns2}
                   rows={jugadoresSimilaresTabla}
                   initialState={{
                     ...jugadoresSimilaresTabla.initialState,
