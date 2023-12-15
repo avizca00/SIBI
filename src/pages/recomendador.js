@@ -148,6 +148,10 @@ export default function Recomendador() {
   const [favoritos, setFavoritos] = useState([]); // Estado para los favoritos del usuario
   const [jugadoresSimilares, setJugadoresSimilares] = useState([]); // Estado para los jugadores similares del usuario
   const [jugadoresSimilaresTabla, setJugadoresSimilaresTabla] = useState([]); // Estado para los jugadores similares del usuario
+  const [jugadoresRecomendados, setJugadoresRecomendados] = useState([]); // Estado para los jugadores similares del usuario
+  const [jugadoresRecomendadosTabla, setJugadoresRecomendadosTabla] = useState(
+    []
+  ); // Estado para los jugadores similares del usuario
 
   const equipos = [
     "MIN",
@@ -264,6 +268,70 @@ export default function Recomendador() {
           console.log(error);
         });
     }
+  };
+
+  const info = (event, cellValues) => {
+    event.preventDefault();
+    setInfoJugador(jugadores[cellValues.row.id]);
+    handleOpen();
+  };
+
+  const info2 = (event, cellValues) => {
+    event.preventDefault();
+    setInfoJugador(jugadoresSimilares[cellValues.row.id]);
+    handleOpen();
+  };
+
+  const info3 = (event, cellValues) => {
+    event.preventDefault();
+    setInfoJugador(jugadoresRecomendados[cellValues.row.id]);
+    handleOpen();
+  };
+
+  const getJugadoresSimilares = async (event, cellValues) => {
+    event.preventDefault();
+    const selectedJugador = jugadores[cellValues.row.id];
+    console.log(selectedJugador);
+
+    await axios
+      .get(`http://localhost:5000/jugadoresSimilares/${selectedJugador.nombre}`)
+      .then((res) => {
+        const { jugadoresSimilares, jugadoresSimilaresTabla } = res.data; // Desestructura la respuesta en dos matrices
+        setJugadoresSimilares(jugadoresSimilares); // Asigna un valor a la primera matriz
+        setJugadoresSimilaresTabla(jugadoresSimilaresTabla); // Asigna un valor a la segunda matriz
+      })
+      .catch((error) => {
+        alert(
+          "Error. No se han podido obtener los jugadores. Inténtelo de nuevo más tarde" +
+            error
+        );
+      });
+  };
+
+  const getJugadoresRecomendados = async () => {
+    await axios
+      .get(`http://localhost:5000/jugadoresRecomendados/${usuario}`)
+      .then((res) => {
+        const { jugadoresRecomendados, jugadoresRecomendadosTabla } = res.data; // Desestructura la respuesta en dos matrices
+        setJugadoresRecomendados(jugadoresRecomendados); // Asigna un valor a la primera matriz
+        setJugadoresRecomendadosTabla(jugadoresRecomendadosTabla); // Asigna un valor a la segunda matriz
+      })
+      .catch((error) => {
+        alert(
+          "Error. No se han podido obtener los jugadores. Inténtelo de nuevo más tarde" +
+            error
+        );
+      });
+  };
+
+  const handleOpen = () => {
+    console.log("Abriendo");
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    console.log("Cerrando");
+    setOpen(false);
   };
 
   const handleNombre = (event) => {
@@ -595,48 +663,6 @@ export default function Recomendador() {
     },
   ];
 
-  const info = (event, cellValues) => {
-    event.preventDefault();
-    setInfoJugador(jugadores[cellValues.row.id]);
-    handleOpen();
-  };
-
-  const info2 = (event, cellValues) => {
-    event.preventDefault();
-    setInfoJugador(jugadoresSimilares[cellValues.row.id]);
-    handleOpen();
-  };
-
-  const getJugadoresSimilares = async (event, cellValues) => {
-    event.preventDefault();
-    const selectedJugador = jugadores[cellValues.row.id];
-    console.log(selectedJugador);
-
-    await axios
-      .get(`http://localhost:5000/jugadoresSimilares/${selectedJugador.nombre}`)
-      .then((res) => {
-        const { jugadoresSimilares, jugadoresSimilaresTabla } = res.data; // Desestructura la respuesta en dos matrices
-        setJugadoresSimilares(jugadoresSimilares); // Asigna un valor a la primera matriz
-        setJugadoresSimilaresTabla(jugadoresSimilaresTabla); // Asigna un valor a la segunda matriz
-      })
-      .catch((error) => {
-        alert(
-          "Error. No se han podido obtener los jugadores. Inténtelo de nuevo más tarde" +
-            error
-        );
-      });
-  };
-
-  const handleOpen = () => {
-    console.log("Abriendo");
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    console.log("Cerrando");
-    setOpen(false);
-  };
-
   if (infoUser !== undefined && Object.keys(infoUser).length !== 0) {
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -872,20 +898,51 @@ export default function Recomendador() {
           </Grid>
 
           <Grid item xs={12} sm={12}>
-            <Container maxWidth={"3400px"}>
-              <Grid item container paddingTop={3} paddingBottom={3}>
-                <StyledDataGrid
-                  {...jugadoresSimilaresTabla}
-                  columns={columns2}
-                  rows={jugadoresSimilaresTabla}
-                  initialState={{
-                    ...jugadoresSimilaresTabla.initialState,
-                    pagination: { paginationModel: { pageSize: 10 } },
-                  }}
-                  pageSizeOptions={[10, 20]}
-                />
-              </Grid>
-            </Container>
+            <Grid item container paddingTop={3} paddingBottom={3}>
+              <StyledDataGrid
+                {...jugadoresSimilaresTabla}
+                columns={columns2}
+                rows={jugadoresSimilaresTabla}
+                initialState={{
+                  ...jugadoresSimilaresTabla.initialState,
+                  pagination: { paginationModel: { pageSize: 10 } },
+                }}
+                pageSizeOptions={[10, 20]}
+              />
+            </Grid>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center">
+            <Typography variant="h2" color={"white"}>
+              JUGADORES RECOMENDADOS PARA TI
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center" height={20}>
+            <Typography variant="subtitle1" color={"white"}>
+              Jugadores que te pueden interesar según tus favoritos y los
+              perfiles de los jugadores que has buscado y visitado
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center" height={150}>
+            <StylerButtonBuscar
+              variant="contained"
+              onClick={getJugadoresRecomendados}
+            >
+              Cargar Recomendados
+            </StylerButtonBuscar>
+          </Grid>
+          <Grid item xs={12} sm={12}>
+            <Grid item container paddingTop={3} paddingBottom={3}>
+              <StyledDataGrid
+                {...jugadoresRecomendadosTabla}
+                columns={columns2}
+                rows={jugadoresRecomendadosTabla}
+                initialState={{
+                  ...jugadoresRecomendadosTabla.initialState,
+                  pagination: { paginationModel: { pageSize: 10 } },
+                }}
+                pageSizeOptions={[10, 20]}
+              />
+            </Grid>
           </Grid>
         </Grid>
       </ThemeProvider>

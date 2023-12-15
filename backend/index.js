@@ -269,6 +269,82 @@ app.get("/jugadoresVisitados/:usuario", (req, res) => {
     .then(() => sesion.close());
 });
 
+app.get("/jugadoresRecomendados/:usuario", async (req, res) => {
+  const { usuario } = req.params;
+
+  const query = `
+    MATCH (u:Usuario {nombre: $usuario})-[:HA_VISITADO_PERFIL]->(j:Jugador)
+    RETURN collect(j) as jugadoresVisitados`; /*
+    WITH collect(j) AS jugadoresVisitados
+    RETURN jugadoresVisitados`;
+    MATCH (u:Usuario {nombre: $usuario})-[:ES_FAVORITO]->(j:Jugador)
+    WITH jugadoresVisitados, collect(j) AS jugadoresFavoritos
+    RETURN jugadoresVisitados + jugadoresFavoritos AS jugadoresEncontrados
+    `; MATCH (j1:Jugador)
+    WHERE j1 IN jugadoresEncontrados
+    WITH jugadoresEncontrados, j1
+    MATCH (j2:Jugador)
+    WHERE j2 <> j1 AND j2.posicion = j1.posicion
+    WITH j1, j2,
+    gds.similarity.euclideanDistance([
+      j1.asistenciasPartido, j1.canastasPartido, j1.efectividadEnTirosDeCampo, j1.faltasPersonalesPartido, j1.perdidasPartido, j1.porcentajeDeTriple, j1.porcentajeTirosDe2Partido, j1.porcentajeTirosDeCampo, j1.porcentajeTirosLibres,
+      j1.puntosPartido, j1.rebotesDefensivosPartido, j1.rebotesOfensivosPartido, j1.rebotesTotalesPartido, j1.robosPartido, j1.taponesPartido, j1.tirosDe2AcertadosPartido, j1.tirosDe2Partido, j1.tirosLibresAcertadosPartido, j1.tirosLibresPartido, j1.tirosPorPartido, j1.triplesAcertadosPartido, j1.triplesPartido
+    ], [
+      j2.asistenciasPartido, j2.canastasPartido, j2.efectividadEnTirosDeCampo, j2.faltasPersonalesPartido, j2.perdidasPartido, j2.porcentajeDeTriple, j2.porcentajeTirosDe2Partido, j2.porcentajeTirosDeCampo, j2.porcentajeTirosLibres,
+      j2.puntosPartido, j2.rebotesDefensivosPartido, j2.rebotesOfensivosPartido, j2.rebotesTotalesPartido, j2.robosPartido, j2.taponesPartido, j2.tirosDe2AcertadosPartido, j2.tirosDe2Partido, j2.tirosLibresAcertadosPartido, j2.tirosLibresPartido, j2.tirosPorPartido, j2.triplesAcertadosPartido, j2.triplesPartido
+    ]) AS distancia
+    RETURN j2, distancia
+    ORDER BY distancia ASC
+    LIMIT 20
+  `*/
+
+  let sesion = driver.session();
+
+  await sesion
+    .run(query, { usuario: usuario })
+    .then((result) => {
+      const jugadores = result.records.map(
+        (record) => record.get("j").properties
+      );
+      const jugadoresModificados = jugadores.map((jugador) => {
+        // Cambiar el parámetro deseado
+        jugador.edad = jugador.edad.low;
+        jugador.partidosJugados = jugador.partidosJugados.low;
+        jugador.partidosTitular = jugador.partidosTitular.low;
+        return jugador;
+      });
+
+      const jugadoresRecomendadosTabla = jugadoresModificados.map(
+        (jugador, i) => ({
+          id: i,
+          nombre: jugador.nombre,
+          puntos: jugador.puntosPartido,
+          edad: jugador.edad,
+          equipo: jugador.equipo,
+          posicion: jugador.posicion,
+          partidos: jugador.partidosJugados,
+          asistencias: jugador.asistenciasPartido,
+          rebotes: jugador.rebotesTotalesPartido,
+          tapones: jugador.taponesPartido,
+          robos: jugador.robosPartido,
+          faltas: jugador.faltasPersonalesPartido,
+          triples: jugador.triplesAcertadosPartido,
+          tirosLibresPartido: jugador.tirosLibresAcertadosPartido,
+        })
+      );
+
+      res.status(200).send({
+        jugadoresRecomendados: jugadoresModificados,
+        jugadoresRecomendadosTabla,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send({ message: "Internal server error" });
+    })
+    .finally(() => sesion.close());
+});
+
 app.get("/usuario/:nombre", async (req, res) => {
   const { nombre } = req.params;
 
