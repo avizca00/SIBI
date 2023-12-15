@@ -49,7 +49,7 @@ const StylerButtonBuscar = styled(Button)({
   marginTop: 30,
   marginBottom: 30,
   height: 100,
-  width: 200,
+  width: 400,
   backgroundColor: orange[300],
   opacity: 0.8,
   fontSize: 30,
@@ -663,6 +663,135 @@ export default function Recomendador() {
     },
   ];
 
+  const columns3 = [
+    {
+      field: "nombre",
+      headerName: "Nombre",
+      width: 250,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "edad",
+      headerName: "Edad",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "equipo",
+      headerName: "Equipo",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "posicion",
+      headerName: "Posicion",
+      width: 100,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "partidos",
+      headerName: "Partidos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "puntos",
+      headerName: "Puntos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "asistencias",
+      headerName: "Asistencias",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "rebotes",
+      headerName: "Rebotes",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tapones",
+      headerName: "Tapones",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "robos",
+      headerName: "Robos",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "faltas",
+      headerName: "Faltas",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+
+    {
+      field: "triples",
+      headerName: "Triples",
+      width: 150,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "tirosLibresPartido",
+      headerName: "Tiro Libres por Partido",
+      width: 200,
+      editable: false,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "Info",
+      renderCell: (cellValues) => {
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => {
+              info3(event, cellValues);
+            }}
+          >
+            Info
+          </Button>
+        );
+      },
+      width: 20,
+      align: "center",
+      headerAlign: "center",
+    },
+  ];
+
   if (infoUser !== undefined && Object.keys(infoUser).length !== 0) {
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -925,7 +1054,7 @@ export default function Recomendador() {
           <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar
               variant="contained"
-              onClick={getJugadoresRecomendados}
+              onClick={getJugadoresRecomendados} 
             >
               Cargar Recomendados
             </StylerButtonBuscar>
@@ -934,7 +1063,7 @@ export default function Recomendador() {
             <Grid item container paddingTop={3} paddingBottom={3}>
               <StyledDataGrid
                 {...jugadoresRecomendadosTabla}
-                columns={columns2}
+                columns={columns3}
                 rows={jugadoresRecomendadosTabla}
                 initialState={{
                   ...jugadoresRecomendadosTabla.initialState,
