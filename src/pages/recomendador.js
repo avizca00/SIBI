@@ -15,7 +15,8 @@ import { orange } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material";
 import GlobalStyles from "@mui/material/GlobalStyles";
-import Player_Card from "../componentes/player_card";
+import PlayerCard from "../componentes/player_card";
+import logo from "../logo/logo.jpg";
 
 const defaultTheme = createTheme({
   typography: {
@@ -50,63 +51,75 @@ const StylerButtonBuscar = styled(Button)({
   marginBottom: 30,
   height: 100,
   width: 400,
-  backgroundColor: orange[300],
-  opacity: 0.8,
-  fontSize: 30,
-  color: "white", // Cambiar el color del texto del botón a blanco
+  backgroundColor: "#fd7528",
+  color: "white",
+  borderRadius: "5px",
+  padding: "10px 20px",
+  fontSize: "2rem",
+  fontFamily: "Times New Roman",
   "&:hover": {
-    backgroundColor: orange[500],
-  },
-  "& .MuiButton-label": {
-    opacity: 1,
+    backgroundColor: "#fa5128",
   },
 });
 
 const StyledSelect = styled(Select)({
   width: 200,
-  backgroundColor: orange[300],
-  opacity: 0.8,
+  backgroundColor: "#8ecbfa",
   fontSize: 30,
-  "&:hover": {
-    backgroundColor: orange[500],
-  },
-  "& .MuiButton-label": {
-    opacity: 1,
+  fontFamily: "Times New Roman",
+  color: "white",
+  borderRadius: "10px",
+  "& .MuiSelect-root:focus": {
+    backgroundColor: "#8ecbfa",
+    outline: "none",
   },
 });
 
 const StyledTypography = styled(Typography)({
   color: "white",
-  "& .MuiButton-label": {
-    opacity: 1,
-  },
+  fontSize: "1.5rem",
+  fontFamily: "Times New Roman",
+  fontWeight: "bold",
+});
+
+const StyledTypography2 = styled(Typography)({
+  color: "#fb8324",
+  fontSize: "3rem",
+  fontFamily: "Times New Roman",
+  fontWeight: "bold",
+});
+
+const StyledTypograph3 = styled(Typography)({
+  color: "#8ecbfa",
+  fontSize: "1.5rem",
+  fontFamily: "Times New Roman",
+  fontWeight: "bold",
+  backgroundColor: "#092770", 
+  width: "55%",
+  borderRadius: "10px",
+  alignContent: "center",
+  opacity: 0.9,
 });
 
 const StyledTextField = styled(TextField)({
-  color: "white",
-  backgroundColor: orange[300],
-  opacity: 0.8,
-  fontSize: 30,
-  width: "25%",
-  "& .MuiInputBase-input": {
-    color: "white",
+  "& .MuiInputBase-root": {
+    color: "blue",
+    fontSize: "1.25rem",
+    fontFamily: "Times New Roman",
+    borderRadius: "10px",
+    overflow: "hidden", // Add this line to hide overflow
+    backgroundColor: "#8ecbfa",
+    width: "100%", // Add this line to set the width
   },
-  "& .MuiInputBase-input::placeholder": {
-    color: "white",
-    opacity: 1,
-  },
-  "&:hover": {
-    backgroundColor: orange[500],
-  },
-  "& .MuiButton-label": {
-    opacity: 1,
-  },
+  backgroundColor: "#081552",
+  overflow: "hidden", // Add this line to hide overflow
+  width: "25%", // Add this line to set the width
 });
 
 const StyledDataGrid = styled(DataGrid)({
   width: "70%", // Set the width to 100% of the container
   boxShadow: 2,
-  backgroundColor: "#363A43",
+  backgroundColor: "#0a1858",
   border: 2,
   color: "white",
   borderColor: "primary.light",
@@ -118,10 +131,12 @@ const StyledDataGrid = styled(DataGrid)({
   },
   "& .MuiDataGrid-columnHeader:hover": {
     color: "primary.main",
+    backgroundColor: "#07043b", // Change the background color of the column header
   },
   "& .MuiDataGrid-columnHeader:focus": {
     color: "primary.main",
   },
+  opacity: 0.9,
 });
 
 export default function Recomendador() {
@@ -948,7 +963,12 @@ export default function Recomendador() {
       <ThemeProvider theme={defaultTheme}>
         <GlobalStyles
           styles={{
-            body: { backgroundColor: orange[200] },
+            body: {
+              backgroundImage: `url(${logo})`,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+            },
           }}
         />
         <UserBar />
@@ -964,13 +984,13 @@ export default function Recomendador() {
             </StyledTypography>
             <StyledTextField
               value={nombre}
-              variant="outlined"
               onChange={handleNombre}
               type="text"
+              placeholder="Nombre del Jugador"
             />
           </Grid>
           {open ? (
-            <Player_Card
+            <PlayerCard
               user={infoUser}
               jugador={infoJugador}
               cerrarDialogo={handleClose}
@@ -1041,10 +1061,9 @@ export default function Recomendador() {
             <StyledSlider
               value={partidos}
               onChange={handlePartidos}
-              defaultValue={45}
               marks
               min={0}
-              max={90}
+              max={85}
               valueLabelDisplay="auto"
             />
           </Grid>
@@ -1167,15 +1186,13 @@ export default function Recomendador() {
             </Container>
           </Grid>
           <Grid item xs={12} sm={12} align="center">
-            <Typography variant="h2" color={"white"}>
-              JUGADORES SIMILARES
-            </Typography>
+            <StyledTypography2>JUGADORES SIMILARES</StyledTypography2>
           </Grid>
-          <Grid item xs={12} sm={12} align="center" height={20}>
-            <Typography variant="subtitle1" color={"white"}>
+          <Grid item xs={12} sm={12} align="center" height={42}>
+            <StyledTypograph3 variant="subtitle1" color={"white"}>
               Haz clic en el boton "Similares" de un jugador de la anterior
               tabla para obtener jugadores similares
-            </Typography>
+            </StyledTypograph3>
           </Grid>
 
           <Grid item xs={12} sm={12}>
@@ -1193,15 +1210,15 @@ export default function Recomendador() {
             </Grid>
           </Grid>
           <Grid item xs={12} sm={12} align="center">
-            <Typography variant="h2" color={"white"}>
+            <StyledTypography2>
               JUGADORES RECOMENDADOS PARA TI
-            </Typography>
+            </StyledTypography2>
           </Grid>
-          <Grid item xs={12} sm={12} align="center" height={20}>
-            <Typography variant="subtitle1" color={"white"}>
+          <Grid item xs={12} sm={12} align="center" height={42}>
+            <StyledTypograph3 variant="subtitle1" color={"white"}>
               Jugadores que te pueden interesar según tus favoritos y los
               perfiles de los jugadores que has buscado y visitado
-            </Typography>
+            </StyledTypograph3>
           </Grid>
           <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar
@@ -1226,9 +1243,13 @@ export default function Recomendador() {
             </Grid>
           </Grid>
           <Grid item xs={12} sm={12} align="center">
-            <Typography variant="h2" color={"white"}>
-              TUS JUGADORES FAVORITOS
-            </Typography>
+            <StyledTypography2>TUS JUGADORES FAVORITOS</StyledTypography2>
+          </Grid>
+          <Grid item xs={12} sm={12} align="center" height={42}>
+            <StyledTypograph3 variant="subtitle1" color={"white"}>
+              Aquí puedes ver los jugadores que has marcado como favoritos y que
+              puedes visitar en cualquier momento
+            </StyledTypograph3>
           </Grid>
           <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar

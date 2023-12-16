@@ -11,6 +11,48 @@ import { useNavigate } from "react-router-dom";
 import { BsGithub } from "react-icons/bs";
 import { SiNeo4J } from "react-icons/si";
 import axios from "axios";
+import logo from "../logo/logo.jpg";
+import { styled } from "@mui/material";
+
+const StyledTypography = styled(Typography)({
+  color: "#fbfdfb",
+  fontSize: "2.5rem",
+  fontFamily: "Times New Roman",
+});
+
+const StyledTypography2 = styled(Typography)({
+  color: "#fbfdfb",
+  fontSize: "1.2rem",
+  fontFamily: "Times New Roman",
+});
+
+const StyledTextField = styled(TextField)({
+  "& .MuiInputBase-root": {
+    color: "blue",
+    fontSize: "1.25rem",
+    fontFamily: "Times New Roman",
+    borderRadius: "10px",
+    overflow: "hidden", // Add this line to hide overflow
+    backgroundColor: "#8ecbfa",
+    width: "100%", // Add this line to set the width
+  },
+  backgroundColor: "#081552",
+  overflow: "hidden", // Add this line to hide overflow
+  width: "100%", // Add this line to set the width
+});
+
+const StyledButton = styled(Button)({
+  backgroundColor: "#fd7528",
+  color: "white",
+  borderRadius: "5px",
+  padding: "10px 20px",
+  fontSize: "1.1rem",
+  fontFamily: "Times New Roman",
+  marginTop: "15px",
+  "&:hover": {
+    backgroundColor: "#fa5128",
+  },
+});
 
 function Copyright(props) {
   /**
@@ -28,20 +70,27 @@ function Copyright(props) {
   };
 
   return (
-    <Typography variant="h5" color="text.secondary" align="center" {...props}>
+    <StyledTypography2
+      variant="h5"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
       Memoria del proyecto en{" "}
-      <BsGithub id="logoGithub" onClick={github} cursor={"pointer"} />
+        <BsGithub id="logoGithub" onClick={github} cursor={"pointer"} />
       <br />
-      Powered by <SiNeo4J id="logoNeo4j" onClick={neo} cursor={"pointer"} />
+      Powered by{" "}
+        <SiNeo4J id="logoNeo4j" onClick={neo} cursor={"pointer"} />
       <br />
       <a
         href={"https://ingenierias.unileon.es/"}
         target={"_blank"}
         rel="noopener noreferrer external"
+        style={{ color: "#c70755" }}
       >
         Escuela de Ingenierías Universidad de León
       </a>
-    </Typography>
+    </StyledTypography2>
   );
 }
 const defaultTheme = createTheme();
@@ -109,8 +158,7 @@ export default function Login() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80)",
+            backgroundImage: "url(" + logo + ")",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
@@ -129,7 +177,7 @@ export default function Login() {
           elevation={6}
           square
           sx={{
-            backgroundColor: "#FF862C",
+            backgroundColor: "#07043b",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -143,16 +191,14 @@ export default function Login() {
               alignItems: "center",
             }}
           >
-            <Typography component="h1" variant="h4">
-              ¡INICIA SESION!
-            </Typography>
+            <StyledTypography>¡INICIA SESION!</StyledTypography>
             <Box
               component="form"
               noValidate
               onSubmit={iniciaSesion}
               sx={{ mt: 1 }}
             >
-              <TextField
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
@@ -162,7 +208,7 @@ export default function Login() {
                 autoComplete="usuario"
                 autoFocus
               />
-              <TextField
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
@@ -172,14 +218,9 @@ export default function Login() {
                 id="contrasenia"
                 autoComplete="contraseña-actual"
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2, bgcolor: "#F3A062" }}
-              >
+              <StyledButton type="submit" fullWidth variant="contained">
                 INICIA SESION
-              </Button>
+              </StyledButton>
             </Box>
           </Box>
           <Box
@@ -191,48 +232,43 @@ export default function Login() {
               alignItems: "center",
             }}
           >
-            <Typography component="h1" variant="h4">
+            <StyledTypography component="h1" variant="h4">
               ¡REGISTRATE YA!
-            </Typography>
+            </StyledTypography>
             <Box component="form" noValidate onSubmit={registraUsuario}>
-              <TextField
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
                 id="usuario-registro"
-                label="Usuario"
+                placeholder="Usuario"
                 name="usuario-registro"
                 autoComplete="usuario"
                 autoFocus
               />
-              <TextField
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
                 name="contrasenia-registro"
-                label="Contraseña"
+                placeholder="Contraseña"
                 type="password"
                 id="contrasenia-registro"
                 autoComplete="contraseña"
               />
-              <TextField
+              <StyledTextField
                 margin="normal"
                 required
                 fullWidth
                 name="contrasenia-registro-comprobacion"
-                label="Confirmar contraseña"
+                placeholder="Confirmar contraseña"
                 type="password"
                 id="contrasenia-registro-comprobacion"
                 autoComplete="contraseña"
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2, bgcolor: "#F3A062" }}
-              >
+              <StyledButton type="submit" fullWidth variant="contained">
                 REGISTRATE
-              </Button>
+              </StyledButton>
               <Copyright sx={{ mt: 2 }} />
             </Box>
           </Box>

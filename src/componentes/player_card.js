@@ -3,12 +3,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import StarIcon from "@mui/icons-material/Star";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Divider } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -17,8 +13,15 @@ import {
   Grid,
 } from "@mui/material";
 import { orange } from "@mui/material/colors";
+import logo from "../logo/logo.jpg";
 
-export default function MovieInfoCard({ user, jugador, cerrarDialogo, open, actualizaFavoritos }) {
+export default function PlayerCard({
+  user,
+  jugador,
+  cerrarDialogo,
+  open,
+  actualizaFavoritos,
+}) {
   const [info, setInfo] = useState({});
   const [infoUsuario, setInfoUsuario] = useState({});
   const [isFavorite, setIsFavorite] = useState("No");
@@ -37,15 +40,16 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open, actu
   const styles = {
     fontd: {
       width: "100%",
-      color: "white",
+      color: orange["A400"],
       fontFamily: "Franklin Gothic Medium",
       fontSize: "20px",
     },
     titulo: {
       color: "white",
-      backgroundColor: "#363A43",
+      backgroundColor: "#07043b",
       fontFamily: "Franklin Gothic Medium",
       fontSize: "35px",
+      opacity: "1",
     },
   };
 
@@ -117,7 +121,10 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open, actu
         maxWidth={"lg"}
         sx={{
           color: "white",
-          backgroundColor: orange[200],
+          backgroundImage: `url(${logo})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
           borderRadius: "15px",
         }}
       >
@@ -143,14 +150,17 @@ export default function MovieInfoCard({ user, jugador, cerrarDialogo, open, actu
         <DialogContent
           sx={{
             color: "white",
-            backgroundColor: orange[200],
+            backgroundImage: `url(${logo})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
           }}
         >
           <>
             <br />
           </>
           <Grid container spacing={2}>
-            <Grid item xs={4}>
+            <Grid item xs={4} padding={0}>
               <img
                 src={info.imagenJugador}
                 alt="Foto del jugador"

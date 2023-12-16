@@ -3,35 +3,26 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
-import Avatar from "@mui/material/Avatar";
-import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Container from "@mui/material/Container";
-import { orange } from "@mui/material/colors";
 
 export default function UserBar() {
   const { usuario } = useParams();
   const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
 
-  const pages = ["Home", "Perfil"];
+  const pages = ["Home"];
   const settings = ["Logout"];
 
   const styles = {
     appBar: {
-      backgroundColor: orange[500],
+      backgroundColor: "#07043b",
       boxShadow: 4,
+      opacity: 1,
       box: {
         flexGrow: 1,
         display: { xs: "flex", md: "none" },
