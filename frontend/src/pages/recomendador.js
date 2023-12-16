@@ -94,7 +94,7 @@ const StyledTypograph3 = styled(Typography)({
   fontSize: "1.5rem",
   fontFamily: "Times New Roman",
   fontWeight: "bold",
-  backgroundColor: "#092770", 
+  backgroundColor: "#092770",
   width: "55%",
   borderRadius: "10px",
   alignContent: "center",
@@ -285,7 +285,6 @@ export default function Recomendador() {
         });
     }
   };
-
   const info = (event, cellValues) => {
     event.preventDefault();
     setInfoJugador(jugadores[cellValues.row.id]);

@@ -135,16 +135,19 @@ app.post("/jugadoresCar", (req, res) => {
     query += `AND j.posicion CONTAINS $posicion `;
     json.posicion = posicion;
   }
-  query += `RETURN j`;
+  query += `RETURN j,[(j)-[r:ES]->(n:Caracteristica) | n.valor] as caracteristicas`;
 
   let sesion = driver.session();
   //MIRAR PARAMETROS
   sesion
     .run(query, json)
     .then((result) => {
-      const jugadores = result.records.map(
-        (record) => record.get("j").properties
-      );
+      const jugadores = result.records.map((record) => {
+        const jugador = record.get("j").properties;
+        const caracteristicas = record.get("caracteristicas");
+        jugador.caracteristicas = caracteristicas;
+        return jugador;
+      });
       // Modificar el parámetro deseado en todos los jugadores
       const jugadoresModificados = jugadores.map((jugador) => {
         jugador.edad = jugador.edad.low;
@@ -191,7 +194,7 @@ app.get("/jugadoresSimilares/:nombre", async (req, res) => {
     , j1.puntosPartido, j1.rebotesDefensivosPartido, j1.rebotesOfensivosPartido, j1.rebotesTotalesPartido, j1.robosPartido, j1.taponesPartido, j1.tirosDe2AcertadosPartido, j1.tirosDe2Partido, j1.tirosLibresAcertadosPartido, j1.tirosLibresPartido, j1.tirosPorPartido, j1.triplesAcertadosPartido, j1.triplesPartido ], \
       [j2.asistenciasPartido, j2.canastasPartido, j2.efectividadEnTirosDeCampo, j2.faltasPersonalesPartido,  j2.perdidasPartido, j2.porcentajeDeTriple, j2.porcentajeTirosDe2Partido, j2.porcentajeTirosDeCampo, j2.porcentajeTirosLibres
         , j2.puntosPartido, j2.rebotesDefensivosPartido, j2.rebotesOfensivosPartido, j2.rebotesTotalesPartido, j2.robosPartido, j2.taponesPartido, j2.tirosDe2AcertadosPartido, j2.tirosDe2Partido, j2.tirosLibresAcertadosPartido, j2.tirosLibresPartido, j2.tirosPorPartido, j2.triplesAcertadosPartido, j2.triplesPartido]) AS distancia
-    RETURN j2, distancia
+    RETURN j2, distancia, [(j2)-[r:ES]->(n:Caracteristica) | n.valor] as caracteristicas
     ORDER BY distancia ASC LIMIT 10
   `;
 
@@ -200,9 +203,12 @@ app.get("/jugadoresSimilares/:nombre", async (req, res) => {
   await sesion
     .run(query, { nombre: nombre })
     .then((result) => {
-      const jugadores = result.records.map(
-        (record) => record.get("j2").properties
-      );
+      const jugadores = result.records.map((record) => {
+        const jugador = record.get("j2").properties;
+        const caracteristicas = record.get("caracteristicas");
+        jugador.caracteristicas = caracteristicas;
+        return jugador;
+      });
       const jugadoresModificados = jugadores.map((jugador) => {
         // Cambiar el parámetro deseado
         jugador.edad = jugador.edad.low;
@@ -291,7 +297,7 @@ app.get("/jugadoresRecomendados/:usuario", async (req, res) => {
     j2.asistenciasPartido, j2.canastasPartido, j2.efectividadEnTirosDeCampo, j2.faltasPersonalesPartido, j2.perdidasPartido, j2.porcentajeDeTriple, j2.porcentajeTirosDe2Partido, j2.porcentajeTirosDeCampo, j2.porcentajeTirosLibres,
     j2.puntosPartido, j2.rebotesDefensivosPartido, j2.rebotesOfensivosPartido, j2.rebotesTotalesPartido, j2.robosPartido, j2.taponesPartido, j2.tirosDe2AcertadosPartido, j2.tirosDe2Partido, j2.tirosLibresAcertadosPartido, j2.tirosLibresPartido, j2.tirosPorPartido, j2.triplesAcertadosPartido, j2.triplesPartido
   ]) AS distancia
-  RETURN j2, distancia
+  RETURN j2, distancia,[(j2)-[r:ES]->(n:Caracteristica) | n.valor] as caracteristicas
   ORDER BY distancia ASC
   LIMIT 20`;
 
@@ -300,9 +306,12 @@ app.get("/jugadoresRecomendados/:usuario", async (req, res) => {
   await sesion
     .run(query, { usuario: usuario })
     .then((result) => {
-      const jugadores = result.records.map(
-        (record) => record.get("j2").properties
-      );
+      const jugadores = result.records.map((record) => {
+        const jugador = record.get("j2").properties;
+        const caracteristicas = record.get("caracteristicas");
+        jugador.caracteristicas = caracteristicas;
+        return jugador;
+      });
       const jugadoresModificados = jugadores.map((jugador) => {
         // Cambiar el parámetro deseado
         jugador.edad = jugador.edad.low;
@@ -398,16 +407,19 @@ app.post("/visitarPerfil/:usuario", async (req, res) => {
 app.get("/favoritos/:usuario", async (req, res) => {
   const { usuario } = req.params;
 
-  const query = `MATCH (u:Usuario {nombre: $usuario})-[:ES_FAVORITO]->(j:Jugador) RETURN j`;
+  const query = `MATCH (u:Usuario {nombre: $usuario})-[:ES_FAVORITO]->(j:Jugador) RETURN j,[(j)-[r:ES]->(n:Caracteristica) | n.valor] as caracteristicas`;
 
   let sesion = driver.session();
 
   await sesion
     .run(query, { usuario: usuario })
     .then((result) => {
-      const jugadores = result.records.map(
-        (record) => record.get("j").properties
-      );
+      const jugadores = result.records.map((record) => {
+        const jugador = record.get("j").properties;
+        const caracteristicas = record.get("caracteristicas");
+        jugador.caracteristicas = caracteristicas;
+        return jugador;
+      });
       const jugadoresModificados = jugadores.map((jugador) => {
         // Cambiar el parámetro deseado
         jugador.edad = jugador.edad.low;
@@ -500,16 +512,22 @@ app.delete("/favoritos/:usuario/:nombre", async (req, res) => {
  * Endpoint para obtener todos los jugadores
  */
 app.get("/jugadores", async (req, res) => {
-  const query = "MATCH (j:Jugador) RETURN j";
+  /*const query = "MATCH (j:Jugador) RETURN j";*/
+
+  const query =
+    "MATCH (j:Jugador) RETURN j, [(j)-[r:ES]->(n:Caracteristica) | n.valor] as caracteristicas";
 
   let sesion = driver.session();
 
   await sesion
     .run(query)
     .then((result) => {
-      const jugadores = result.records.map(
-        (record) => record.get("j").properties
-      );
+      const jugadores = result.records.map((record) => {
+        const jugador = record.get("j").properties;
+        const caracteristicas = record.get("caracteristicas");
+        jugador.caracteristicas = caracteristicas;
+        return jugador;
+      });
 
       // Modificar el parámetro deseado en todos los jugadores
       const jugadoresModificados = jugadores.map((jugador) => {

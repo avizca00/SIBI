@@ -27,10 +27,8 @@ export default function PlayerCard({
   const [isFavorite, setIsFavorite] = useState("No");
 
   useEffect(() => {
-    console.log(user);
-    //visitaJugador();
+    console.log("Jugador: ", jugador);
     if (jugador !== undefined && user !== undefined) {
-      //visitaJugador();
       setInfo(jugador);
       setInfoUsuario(user);
       getFavoritos();
@@ -80,6 +78,10 @@ export default function PlayerCard({
     await axios
       .post(`http://localhost:5000/visitarPerfil/${user.nombre}`, {
         nombre: jugador.nombre,
+      })
+      .then((response) => {
+        console.log("Visita registrada");
+        //caracteristicas();
       })
       .catch((error) => {
         alert("Ha ocurrido un error" + error);
@@ -200,6 +202,9 @@ export default function PlayerCard({
                 </DialogContentText>
                 <DialogContentText style={styles.fontd}>
                   Partidos Titular: {info.partidosTitular}
+                </DialogContentText>
+                <DialogContentText style={styles.fontd}>
+                  Caracteristicas: {jugador.caracteristicas.join(", ")}
                 </DialogContentText>
                 <>
                   <br />
