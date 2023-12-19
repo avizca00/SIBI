@@ -972,6 +972,9 @@ export default function Recomendador() {
         />
         <UserBar />
         <Grid container component="main">
+          <Grid item xs={12} sm={12} align="center">
+            <StyledTypography2>BUSCADOR</StyledTypography2>
+          </Grid>
           <Grid item xs={12} sm={12} align="center" height={150}>
             <StylerButtonBuscar variant="contained" onClick={getJugadores}>
               Buscar
