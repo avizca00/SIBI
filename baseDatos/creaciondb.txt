@@ -1,0 +1,194 @@
+
+Paso 2: Para limpiar la base de datos anterior: 
+MATCH (n)
+DETACH DELETE n;
+Paso 3: Cargamos los datos. Código a continuación.
+
+LOAD CSV WITH HEADERS FROM 'file:///BaseDatos.csv' AS row FIELDTERMINATOR ';'
+WITH row LIMIT 1000
+MERGE (j:Jugador {nombre: row.Player })
+ON CREATE SET
+	j.equipo = row.Tm,
+	j.posicion = row.Pos,
+	j.partidosJugados = toInteger(row.G),
+	j.minutosJugados = toFloatOrNull(row.MP),
+	j.partidosTitular = toInteger(row.GS),
+	j.edad = toInteger(row.Age),
+	j.tirosPorPartido = toFloatOrNull(row.FGA),
+	j.canastasPartido = toFloatOrNull(row.FG),
+	j.porcentajeTirosDeCampo= toFloatOrNull(row.FGP),
+	j.triplesPartido = toFloatOrNull(row.ThreePA),
+	j.triplesAcertadosPartido = toFloatOrNull(row.ThreeP),
+	j.efectividadEnTirosDeCampo = toFloatOrNull(row.eFGP),
+	j.porcentajeDeTriple = toFloatOrNull(row.ThreePP),
+	j.tirosDe2Partido = toFloatOrNull(row.TwoPA),
+	j.tirosDe2AcertadosPartido = toFloatOrNull(row.TwoP),
+	j.porcentajeTirosDe2Partido = toFloatOrNull(row.TwoPP),
+	j.tirosLibresPartido = toFloatOrNull(row.FT),
+	j.tirosLibresAcertadosPartido= toFloatOrNull(row.FTA),
+	j.porcentajeTirosLibres = toFloatOrNull(row.FTP),
+	j.rebotesOfensivosPartido= toFloatOrNull(row.ORB),
+	j.rebotesDefensivosPartido = toFloatOrNull(row.DRB),
+	j.rebotesTotalesPartido = toFloatOrNull(row.TRB),
+	j.asistenciasPartido = toFloatOrNull(row.AST),
+	j.robosPartido = toFloatOrNull(row.STL),
+	j.taponesPartido = toFloatOrNull(row.BLK),
+	j.perdidasPartido = toFloatOrNull(row.TOV),
+	j.faltasPersonalesPartido = toFloatOrNull(row.PF),
+	j.puntosPartido = toFloatOrNull(row.PTS),
+	j.imagenJugador = row.IMG,
+	j.imagenEquipo = row.IMGT;
+
+CREATE
+(:Caracteristica {valor: 'Anotador'} ),
+(:Caracteristica {valor: 'Stealer'} ),
+(:Caracteristica {valor: 'Tirador'} ),
+(:Caracteristica {valor: 'Organizador'} ),
+(:Caracteristica {valor: 'Defensor'} ),
+(:Caracteristica {valor: 'Reboteador'}),
+(:Caracteristica {valor: 'Propenso a perdidas' }),
+(:Caracteristica {valor: 'Propenso a hacer faltas' }),
+(:Caracteristica {valor: 'Taponador' }),
+(:Caracteristica {valor: 'Especialista en tiros libres' }),
+(:Caracteristica {valor: 'Titular' }),
+(:Caracteristica {valor: 'Rotacion' }),
+(:Caracteristica {valor: 'Sexto Hombre' }),
+(:Caracteristica {valor: 'Descarte' }),
+(:Caracteristica {valor: 'Triple Doble' }),
+(:Caracteristica {valor: 'Doble Doble' }),
+(:Caracteristica {valor: 'Efectivo en el tiro' }),
+(:Caracteristica {valor: 'Tirador de 2' }),
+(:Caracteristica {valor: 'Tirador de 3' })
+;
+
+y asignamos las características
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosTitular > 50 AND c.valor = 'Titular'
+MERGE (j)-[:ROL]->(c);
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosTitular < 50 AND j.partidosTitular > 35  AND c.valor = 'Sexto Hombre'
+MERGE (j)-[:ROL]->(c);
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosTitular < 36 AND j.partidosTitular > 15  AND c.valor = 'Rotacion'
+MERGE (j)-[:ROL]->(c);
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosJugados < 10 AND c.valor = 'Descarte'
+MERGE (j)-[:ROL]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.porcentajeTirosLibres > 0.70 AND c.valor = 'Especialista en tiros libres'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.efectividadEnTirosDeCampo > 0.6 AND c.valor = 'Efectivo en el tiro'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.taponesPartido > 1 AND c.valor = 'Taponador'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.rebotesTotalesPartido > 7 AND c.valor = 'Reboteador'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.robosPartido > 1 AND c.valor = 'Stealer'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.faltasPersonalesPartido > 2.75 AND c.valor = 'Propenso a hacer faltas'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.perdidasPartido > 2.5 AND c.valor = 'Propenso a perdidas'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.porcentajeTirosDe2Partido > 0.6 AND c.valor = 'Tirador de 2'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.porcentajeDeTriple > 0.4 AND c.valor = 'Tirador de 3'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.porcentajeDeTriple > 0.4 AND j.porcentajeTirosDe2Partido > 0.5 AND c.valor = 'Tirador'
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.puntosPartido > 15 AND c.valor = 'Anotador'
+MERGE (j)-[:ES]->(c);
+
+---------------------------------------------
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WHERE j.asistenciasPartido > 6 AND c.valor = 'Organizador' AND j.perdidasPartido < 7
+MERGE (j)-[:ES]->(c);
+
+MATCH (c:Caracteristica)
+WITH c
+MATCH (j:Jugador)
+WITH j AS jugador, c AS carac, CASE WHEN j.puntosPartido>=10 THEN 1 ELSE 0 END AS c1, CASE WHEN j.taponesPartido>=10 THEN 1 ELSE 0 END AS c2, CASE WHEN j.rebotesTotalesPartido>=10 THEN 1 ELSE 0 END AS c3, CASE WHEN j.robosPartido>=10 THEN 1 ELSE 0 END AS c4, CASE WHEN j.robosPartido>=10 THEN 1 ELSE 0 END AS c5
+WHERE c1+c2+c3+c4+c5 =2 AND c.valor = 'Doble Doble'
+MERGE (jugador)-[:PROMEDIA]->(carac);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.penalti > 2 AND c.valor = 'Tirador de Penaltis'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.golesCedidos < 30 AND j.posicion = 'Goalkeeper' AND j.partidosJugados > 10 AND c.valor = 'Porterazo'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.tackleSucc > 30 AND j.posicion = 'Defender' AND c.valor = 'Corta Jugadas'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.dribles > 30 AND j.posicion = 'Midfielder' AND c.valor = 'Regateador'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.amarilla > 8 AND c.valor = 'Propenso a tarjetas'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.rojadirecta > 1 AND c.valor = 'Propenso a expulsion'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosInicial > 28 AND c.valor = 'Titular'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosJugados > 28 AND c.valor = 'Regular'
+MERGE (j)-[:TIENE]->(c);
+
+MATCH (j:Jugador), (c:Caracteristica)
+WHERE j.partidosSustituto > 20 AND c.valor = 'Sustituto'
+MERGE (j)-[:TIENE]->(c);
+
