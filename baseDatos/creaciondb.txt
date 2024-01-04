@@ -156,39 +156,5 @@ WITH j AS jugador, c AS carac, CASE WHEN j.puntosPartido>=10 THEN 1 ELSE 0 END A
 WHERE c1+c2+c3+c4+c5 =2 AND c.valor = 'Doble Doble'
 MERGE (jugador)-[:PROMEDIA]->(carac);
 
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.penalti > 2 AND c.valor = 'Tirador de Penaltis'
-MERGE (j)-[:TIENE]->(c);
 
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.golesCedidos < 30 AND j.posicion = 'Goalkeeper' AND j.partidosJugados > 10 AND c.valor = 'Porterazo'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.tackleSucc > 30 AND j.posicion = 'Defender' AND c.valor = 'Corta Jugadas'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.dribles > 30 AND j.posicion = 'Midfielder' AND c.valor = 'Regateador'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.amarilla > 8 AND c.valor = 'Propenso a tarjetas'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.rojadirecta > 1 AND c.valor = 'Propenso a expulsion'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.partidosInicial > 28 AND c.valor = 'Titular'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.partidosJugados > 28 AND c.valor = 'Regular'
-MERGE (j)-[:TIENE]->(c);
-
-MATCH (j:Jugador), (c:Caracteristica)
-WHERE j.partidosSustituto > 20 AND c.valor = 'Sustituto'
-MERGE (j)-[:TIENE]->(c);
 
